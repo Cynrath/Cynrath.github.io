@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Cyranth - AI-assisted development and secure developer tooling</title>
+  <desc id="desc">Open Graph image for the Cyranth GitHub Pages site.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#020711"/>
+      <stop offset=".55" stop-color="#07111f"/>
+      <stop offset="1" stop-color="#101433"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2dd4bf"/>
+      <stop offset=".48" stop-color="#3b82f6"/>
+      <stop offset="1" stop-color="#7c3aed"/>
+    </linearGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0v48" fill="none" stroke="#8aa7dc" stroke-opacity=".12"/>
+    </pattern>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="28" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <circle cx="930" cy="135" r="230" fill="#3b82f6" opacity=".18" filter="url(#glow)"/>
+  <circle cx="210" cy="470" r="190" fill="#2dd4bf" opacity=".11" filter="url(#glow)"/>
+  <path fill="none" stroke="#3b82f6" stroke-opacity=".35" d="M740 110a210 210 0 1 0 0 420 210 210 0 0 0 0-420Z"/>
+  <g transform="translate(88 82)">
+    <path fill="url(#mark)" d="M92 0 184 51v38L92 38 31 72v58l61 34 92-51v38l-92 51-92-51V51L92 0Z"/>
+    <path fill="#07111f" opacity=".86" d="M92 56 148 88v28l-56 31-56-31V88l56-32Z"/>
+    <path fill="url(#mark)" opacity=".92" d="M92 60 148 92l-32 18-24-14-30 16 30 17 24-14 32 18-56 32-56-32V74l56-32 56 32-32 18-24-14-24 14 24 14-30 16-26-14V74l56-32Z"/>
+  </g>
+  <g fill="#f4f8ff" font-family="Segoe UI, Arial, sans-serif">
+    <text x="88" y="335" font-size="96" font-weight="800" letter-spacing="0">Cyranth</text>
+    <text x="92" y="405" font-size="36" font-weight="600" fill="#d7e3f6">AI-assisted development, secure developer tooling,</text>
+    <text x="92" y="455" font-size="36" font-weight="600" fill="#d7e3f6">and production-ready web systems.</text>
+  </g>
+  <g transform="translate(760 250)">
+    <rect width="330" height="190" rx="8" fill="#07111f" stroke="#89a2cd" stroke-opacity=".32"/>
+    <rect width="330" height="42" rx="8" fill="#ffffff" opacity=".04"/>
+    <circle cx="26" cy="21" r="6" fill="#ff6b6b"/>
+    <circle cx="48" cy="21" r="6" fill="#ffd166"/>
+    <circle cx="70" cy="21" r="6" fill="#65d89f"/>
+    <text x="24" y="86" fill="#65d89f" font-family="Consolas, monospace" font-size="22">$ inspect repo</text>
+    <text x="24" y="122" fill="#d7e3f6" font-family="Consolas, monospace" font-size="20">docs: first</text>
+    <text x="24" y="154" fill="#d7e3f6" font-family="Consolas, monospace" font-size="20">security: checked</text>
+  </g>
+</svg>

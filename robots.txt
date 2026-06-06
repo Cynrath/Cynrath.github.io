@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://cynrath.github.io/sitemap.xml
