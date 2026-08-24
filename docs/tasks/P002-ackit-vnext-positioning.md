@@ -1,5 +1,8 @@
 # P002 - ACKit vNext Positioning Refresh
 
+## Status
+Completed on working branch `docs/ackit-vnext-site`; pending review/merge.
+
 ## Purpose
 Update the Cyranth public site to reflect the real AgentContextKit vNext rebuild on `rebuild/ackit-vnext` without implying that the npm package has already been published.
 
@@ -38,12 +41,13 @@ Update the Cyranth public site to reflect the real AgentContextKit vNext rebuild
 - Existing navigation, responsive structure, theme support, assets, and public links remain intact.
 - No placeholder text remains.
 
-## Validation
-- Review all edited HTML for stale `.NET`-specific ACKit claims.
-- Verify internal anchors and relative asset paths remain unchanged and valid.
-- Verify external links point only to public GitHub resources.
-- Verify HTML still has one `h1`, semantic sections, canonical metadata, Open Graph metadata, and Twitter metadata.
-- Run or reproduce equivalent checks for malformed placeholders, `TODO`, `TBD`, and fake metrics before merging.
+## Validation Evidence
+- `main...docs/ackit-vnext-site`: branch is 4 commits ahead and 0 behind after task closure.
+- Changed paths are limited to `index.html`, `README.md`, and this task document.
+- `index.html` retains one `h1`, canonical metadata, Open Graph metadata, Twitter metadata, existing relative CSS/JS/SVG paths, the same main navigation anchors, and the existing theme/mobile-navigation hooks.
+- Public ACKit claims were sourced from `rebuild/ackit-vnext/README.md` and `package.json`: TypeScript/Node.js, Node >=22, pnpm 11, `@cynrath/agent-context-kit` 0.1.0, offline-first/deterministic posture, instruction graph, Agent Skills, scanning, context packs, task workflow, policy-as-code, monorepo support, reports, and read-only MCP.
+- The page explicitly states that npm publication has not happened.
+- No release, npm publish, tag, workflow dispatch, force-push, history rewrite, or ACKit repository mutation was performed.
 
 ## Rollback
 Revert the focused commit(s) that implement P002.
