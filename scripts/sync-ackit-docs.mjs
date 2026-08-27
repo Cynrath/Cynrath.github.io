@@ -10,6 +10,7 @@
  */
 
 import { promises as fsp } from "node:fs";
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -40,7 +41,7 @@ function escapeHtml(s) {
 
 function readVersion(source) {
   try {
-    const pkg = JSON.parse(require("node:fs").readFileSync(path.join(source, "package.json"), "utf8"));
+    const pkg = JSON.parse(fs.readFileSync(path.join(source, "package.json"), "utf8"));
     return pkg.version || "0.2.1";
   } catch {
     return "0.2.1";
