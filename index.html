@@ -90,6 +90,12 @@
                   <path d="M7 17 17 7m0 0H9m8 0v8"></path>
                 </svg>
               </a>
+              <a class="button button-secondary" href="/agent-context-kit/">
+                Documentation
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 17 17 7m0 0H9m8 0v8"></path>
+                </svg>
+              </a>
             </div>
             <ul class="tag-list hero-tags" aria-label="Core technologies and practices">
               <li>.NET</li>
@@ -100,6 +106,8 @@
               <li>Linux</li>
               <li>Cloudflare</li>
               <li>Security-aware workflows</li>
+              <li>TypeScript</li>
+              <li>Offline-first</li>
             </ul>
           </div>
 
@@ -163,9 +171,9 @@ handoff: safer</code></pre>
             <div class="project-copy">
               <p class="lead">Offline-first repository context and safety toolkit for AI-assisted development.</p>
               <ul class="feature-list">
-                <li>Repository structure and stack analysis</li>
+                <li>Instruction Graph v2 &amp; Provider Profiles</li>
                 <li>AI agent instruction/workflow files</li>
-                <li>Task-first documentation templates</li>
+                <li>Context Packs &amp; Readiness Scoring</li>
                 <li>Secret, PII, local path, and brand leakage risk checks</li>
                 <li>CI-friendly reports and safer handoff context</li>
               </ul>
@@ -184,11 +192,11 @@ handoff: safer</code></pre>
                   <span></span>
                   <strong>agent-context-kit</strong>
                 </div>
-                <pre><code>$ ackit inspect .
+                <pre><code>$ ackit readiness
+Readiness 88/100 ██████████████████░░  (threshold 80 — pass)
+$ ackit scan --ci
 ok structure mapped
-ok task template ready
-ok privacy rules checked
-ok handoff context saved</code></pre>
+ok privacy rules checked</code></pre>
               </div>
             </div>
           </div>

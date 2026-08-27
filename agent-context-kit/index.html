@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AgentContextKit — ACKit 0.2.1</title>
+  <meta name="description" content="Offline-first toolkit for agent-ready repositories: readiness scoring, instruction graphs, context packs, policy/rule packs, MCP, GitHub Actions, diagnostics, and VS Code.">
+  <link rel="canonical" href="https://cynrath.github.io/agent-context-kit/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://cynrath.github.io/agent-context-kit/">
+  <meta property="og:title" content="AgentContextKit — ACKit">
+  <meta property="og:description" content="Offline-first toolkit for agent-ready repositories: readiness scoring, instruction graphs, context packs, policy/rule packs, MCP, GitHub Actions, diagnostics, and VS Code.">
+  <meta name="twitter:card" content="summary">
+  <link rel="stylesheet" href="/agent-context-kit/assets/ackit-docs.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="/agent-context-kit/">ACKit</a>
+      <nav class="docs-nav" aria-label="Docs navigation">
+          <a href="/agent-context-kit/" aria-current="page" class="active">Overview</a>
+          <a href="/agent-context-kit/getting-started/">Getting Started</a>
+          <a href="/agent-context-kit/cli/">CLI</a>
+          <a href="/agent-context-kit/readiness/">Readiness</a>
+          <a href="/agent-context-kit/optimize/">Optimize</a>
+          <a href="/agent-context-kit/profiles/">Profiles</a>
+          <a href="/agent-context-kit/instruction-graph/">Instruction Graph</a>
+          <a href="/agent-context-kit/rule-packs/">Rule Packs</a>
+          <a href="/agent-context-kit/github-action/">GitHub Action</a>
+          <a href="/agent-context-kit/mcp/">MCP</a>
+          <a href="/agent-context-kit/sdk/">SDK</a>
+          <a href="/agent-context-kit/dashboard/">Dashboard</a>
+          <a href="/agent-context-kit/diagnostics/">Diagnostics</a>
+          <a href="/agent-context-kit/vscode/">VS Code</a>
+          <a href="/agent-context-kit/security/">Security</a>
+          <a href="/agent-context-kit/benchmarks/">Benchmarks</a>
+          <a href="/agent-context-kit/migration/">Migration</a>
+      </nav>
+      <a class="button button-small" href="https://github.com/Cynrath/agent-context-kit" rel="noopener" target="_blank">GitHub</a>
+    </div>
+  </header>
+  <main id="main" class="shell docs-main">
+    <article class="docs-article">
+      
+<h1>AgentContextKit 0.2.1</h1>
+<p><strong>Offline-first toolkit for agent-ready repositories:</strong> readiness scoring, instruction graphs, context packs, policy/rule packs, MCP, GitHub Actions, diagnostics, and VS Code.</p>
+<p><a class="button" href="https://github.com/Cynrath/agent-context-kit">GitHub</a> <a class="button" href="https://www.npmjs.com/package/@cynrath/agent-context-kit">npm</a> <a class="button" href="https://github.com/Cynrath/agent-context-kit/releases/tag/v0.2.1">Release v0.2.1</a></p>
+<h2>Install</h2>
+<pre><code>npm install --global @cynrath/agent-context-kit@0.2.1
+ackit --version  # 0.2.1
+npx --yes @cynrath/agent-context-kit@0.2.1 --help</code></pre>
+<h2>Quickstart</h2>
+<pre><code>ackit init --dry-run        # plan shims + 4 built-in skills (writes nothing)
+ackit scan --ci             # gate: exit 1 at/over threshold (medium)
+ackit readiness             # 0–100, N/A renormalization, --strict/--fail-below
+ackit instructions --explain # graph v2 with provenance
+ackit optimize --explain    # 8-class advisor, waste estimates
+ackit pack --profile codex --max-tokens 50000  # provider-aware, budgeted
+ackit dashboard --port 0 --open  # localhost-only</code></pre>
+<h2>Why ACKit?</h2>
+<table style="width:100%; border-collapse:collapse; border:1px solid #30363d;">
+<thead><tr><th style="border:1px solid #30363d; padding:8px; text-align:left;">Before</th><th style="border:1px solid #30363d; padding:8px; text-align:left;">With ACKit</th></tr></thead>
+<tbody>
+<tr><td style="border:1px solid #30363d; padding:8px;">Convention-based — nothing is verified</td><td style="border:1px solid #30363d; padding:8px;"><strong>Deterministic local analysis</strong></td></tr>
+<tr><td style="border:1px solid #30363d; padding:8px;">Cloud-coupled — code leaves the machine</td><td style="border:1px solid #30363d; padding:8px;"><strong>Offline-by-construction</strong> — zero network</td></tr>
+<tr><td style="border:1px solid #30363d; padding:8px;">Secrets leak into prompts/logs</td><td style="border:1px solid #30363d; padding:8px;"><strong>Redacted at construction</strong></td></tr>
+</tbody></table>
+<h2>Features</h2>
+<ul>
+<li><strong>Readiness 0–100</strong> — 6 categories, weighted renormalization</li>
+<li><strong>Instruction Graph v2</strong> — Codex/Claude/Gemini/Copilot, scope→precedence</li>
+<li><strong>Provider Profiles</strong> — codex/claude/copilot/gemini/generic, budget/includePriority</li>
+<li><strong>Rule Packs</strong> — declarative, offline, ReDoS/size guards</li>
+<li><strong>Optimize v2</strong> — 8-class taxonomy, waste estimates</li>
+<li><strong>Context Packs</strong> — weighted ranking, manifest hash/reason/tokens</li>
+<li><strong>Scanning</strong> — SARIF 2.1.0, redacted evidence</li>
+<li><strong>Tasks</strong> — docs-first, single-active</li>
+<li><strong>Dashboard</strong> — localhost-only 127.0.0.1, CSP</li>
+<li><strong>Diagnostics</strong> — bundle-manifest.json with sha256</li>
+<li><strong>MCP</strong> — stdio, 9 tools, 5 resources, 4 prompts</li>
+<li><strong>VS Code</strong> — Cynrath.ackit-vscode v0.2.1</li>
+<li><strong>GitHub Action</strong> — Cynrath/agent-context-kit@v0.2.1</li>
+</ul>
+<h2>Docs</h2>
+<ul>
+<li><a href="/agent-context-kit/getting-started/">Getting Started</a></li>
+<li><a href="/agent-context-kit/cli/">CLI Reference</a></li>
+<li><a href="/agent-context-kit/security/">Security &amp; Offline Guarantee</a></li>
+<li><a href="/agent-context-kit/benchmarks/">Benchmarks</a></li>
+</ul>
+<p><small>Canonical source: <code>README.md</code> + <code>docs/**</code> + <code>CHANGELOG.md</code> from <code>agent-context-kit@0.2.1</code>. This site is a presentation layer only — no CDN, no analytics, no tracking.</small></p>
+
+    </article>
+  </main>
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+      <p>AgentContextKit 0.2.1 — offline-first, deterministic, no telemetry. <a href="https://github.com/Cynrath/agent-context-kit">GitHub</a> · <a href="https://www.npmjs.com/package/@cynrath/agent-context-kit">npm</a> · <a href="https://cynrath.github.io/">Cyranth</a></p>
+    </div>
+  </footer>
+  <script src="/agent-context-kit/assets/ackit-docs.js" defer></script>
+</body>
+</html>

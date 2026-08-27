@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CLI Reference — ACKit 0.2.1</title>
+  <meta name="description" content="ACKit CLI commands and options">
+  <link rel="canonical" href="https://cynrath.github.io/agent-context-kit/cli/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://cynrath.github.io/agent-context-kit/cli/">
+  <meta property="og:title" content="CLI Reference — ACKit">
+  <meta property="og:description" content="ACKit CLI commands and options">
+  <meta name="twitter:card" content="summary">
+  <link rel="stylesheet" href="/agent-context-kit/assets/ackit-docs.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="/agent-context-kit/">ACKit</a>
+      <nav class="docs-nav" aria-label="Docs navigation">
+          <a href="/agent-context-kit/">Overview</a>
+          <a href="/agent-context-kit/getting-started/">Getting Started</a>
+          <a href="/agent-context-kit/cli/" aria-current="page" class="active">CLI</a>
+          <a href="/agent-context-kit/readiness/">Readiness</a>
+          <a href="/agent-context-kit/optimize/">Optimize</a>
+          <a href="/agent-context-kit/profiles/">Profiles</a>
+          <a href="/agent-context-kit/instruction-graph/">Instruction Graph</a>
+          <a href="/agent-context-kit/rule-packs/">Rule Packs</a>
+          <a href="/agent-context-kit/github-action/">GitHub Action</a>
+          <a href="/agent-context-kit/mcp/">MCP</a>
+          <a href="/agent-context-kit/sdk/">SDK</a>
+          <a href="/agent-context-kit/dashboard/">Dashboard</a>
+          <a href="/agent-context-kit/diagnostics/">Diagnostics</a>
+          <a href="/agent-context-kit/vscode/">VS Code</a>
+          <a href="/agent-context-kit/security/">Security</a>
+          <a href="/agent-context-kit/benchmarks/">Benchmarks</a>
+          <a href="/agent-context-kit/migration/">Migration</a>
+      </nav>
+      <a class="button button-small" href="https://github.com/Cynrath/agent-context-kit" rel="noopener" target="_blank">GitHub</a>
+    </div>
+  </header>
+  <main id="main" class="shell docs-main">
+    <article class="docs-article">
+      <h1>CLI Reference</h1>
+<pre><code>ackit init --dry-run
+ackit scan --ci --changed --staged --since --range --baseline --watch --fail-below
+ackit readiness --fail-below 80 --strict --baseline --compare --json
+ackit optimize --fix --dry-run --profile codex --explain --category --min-severity --format
+ackit diagnostics --json | bundle --out ./diag.zip --redact-check
+ackit dashboard --host 127.0.0.1 --port 0 --allow-nonlocal --open
+ackit instructions --provider codex --profile codex --for &lt;path&gt; --explain --json
+ackit pack --max-tokens 50000 --profile codex --include &lt;glob&gt; --changed
+ackit skills list/validate/install
+ackit task create/list/start/complete
+ackit policy check
+ackit config check
+ackit cache clean
+ackit mcp serve</code></pre>
+<p>Every command supports <code>--json</code> and <code>--help</code>. Exit codes: 0 ok, 1 threshold, 2 usage/config, 3 env, 4 security, 5 internal.</p>
+    </article>
+  </main>
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+      <p>AgentContextKit 0.2.1 — offline-first, deterministic, no telemetry. <a href="https://github.com/Cynrath/agent-context-kit">GitHub</a> · <a href="https://www.npmjs.com/package/@cynrath/agent-context-kit">npm</a> · <a href="https://cynrath.github.io/">Cyranth</a></p>
+    </div>
+  </footer>
+  <script src="/agent-context-kit/assets/ackit-docs.js" defer></script>
+</body>
+</html>
