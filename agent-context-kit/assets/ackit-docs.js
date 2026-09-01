@@ -10,6 +10,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.head.append(link);
   }
 
+  if (!document.querySelector('link[data-ackit-mobile-drawer]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = '/agent-context-kit/assets/ackit-docs-mobile.css';
+    link.dataset.ackitMobileDrawer = 'true';
+    document.head.append(link);
+  }
+
   const brand = document.querySelector('.brand');
   if (brand && !brand.querySelector('.brand-logo')) {
     const label = brand.textContent.trim();
@@ -66,8 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!group.links.length) return;
       const details = document.createElement('details');
       details.className = 'nav-group';
-      const hasActive = group.links.some((anchor) => anchor.classList.contains('active'));
-      details.open = hasActive;
+      details.open = group.links.some((anchor) => anchor.classList.contains('active'));
 
       const summary = document.createElement('summary');
       summary.innerHTML = `<span>${group.label}</span><i aria-hidden="true"></i>`;
@@ -81,18 +88,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const groups = [...nav.querySelectorAll('.nav-group')];
+    let accordionLock = false;
     groups.forEach((details) => {
       details.addEventListener('toggle', () => {
-        if (!details.open) return;
+        if (accordionLock || !details.open) return;
+        accordionLock = true;
         groups.forEach((other) => {
-          if (other !== details) other.open = false;
+          if (other !== details && other.open) other.open = false;
         });
+        queueMicrotask(() => { accordionLock = false; });
       });
     });
   }
 
   const headerInner = document.querySelector('.header-inner');
   if (headerInner && nav && !document.querySelector('.docs-menu-toggle')) {
+    const navPlaceholder = document.createComment('ackit-docs-nav-home');
+    nav.parentNode.insertBefore(navPlaceholder, nav);
+
     const toggle = document.createElement('button');
     toggle.type = 'button';
     toggle.className = 'docs-menu-toggle';
@@ -101,6 +114,13 @@ document.addEventListener('DOMContentLoaded', () => {
     toggle.setAttribute('aria-expanded', 'false');
     toggle.innerHTML = '<span></span><span></span><span></span>';
     nav.id = 'ackit-docs-nav';
+
+    if (!nav.querySelector('.drawer-head')) {
+      const drawerHead = document.createElement('div');
+      drawerHead.className = 'drawer-head';
+      drawerHead.innerHTML = `<span class="drawer-mark"><img src="${favicon}" alt=""></span><span class="drawer-title">ACKit Docs</span><button class="drawer-close" type="button" aria-label="Close documentation menu">×</button>`;
+      nav.prepend(drawerHead);
+    }
 
     const backdrop = document.createElement('button');
     backdrop.type = 'button';
@@ -117,17 +137,27 @@ document.addEventListener('DOMContentLoaded', () => {
       toggle.setAttribute('aria-label', open ? 'Close documentation menu' : 'Open documentation menu');
     };
 
+    const syncNavPlacement = () => {
+      const mobile = matchMedia('(max-width: 980px)').matches;
+      if (mobile) {
+        if (nav.parentNode !== document.body) document.body.append(nav);
+      } else {
+        setMenu(false);
+        if (nav.parentNode === document.body) navPlaceholder.parentNode.insertBefore(nav, navPlaceholder.nextSibling);
+      }
+    };
+
     toggle.addEventListener('click', () => setMenu(!document.body.classList.contains('docs-menu-open')));
     backdrop.addEventListener('click', () => setMenu(false));
+    nav.querySelector('.drawer-close')?.addEventListener('click', () => setMenu(false));
     nav.addEventListener('click', (event) => {
       if (event.target.closest('a') && matchMedia('(max-width: 980px)').matches) setMenu(false);
     });
     addEventListener('keydown', (event) => {
       if (event.key === 'Escape') setMenu(false);
     });
-    addEventListener('resize', () => {
-      if (innerWidth > 980) setMenu(false);
-    }, { passive: true });
+    addEventListener('resize', syncNavPlacement, { passive: true });
+    syncNavPlacement();
   }
 
   for (const pre of document.querySelectorAll('.docs-article pre')) {
@@ -147,10 +177,5 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     pre.append(button);
-  }
-
-  const active = document.querySelector('.docs-nav a.active');
-  if (active && matchMedia('(max-width: 980px)').matches) {
-    active.scrollIntoView({ block: 'nearest' });
   }
 });
