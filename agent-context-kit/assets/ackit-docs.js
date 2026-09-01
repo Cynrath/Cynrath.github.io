@@ -10,6 +10,69 @@ document.addEventListener('DOMContentLoaded', () => {
     document.head.append(link);
   }
 
+  const brand = document.querySelector('.brand');
+  if (brand && !brand.querySelector('.brand-logo')) {
+    const label = brand.textContent.trim();
+    brand.textContent = '';
+
+    const mark = document.createElement('span');
+    mark.className = 'brand-mark';
+    const image = document.createElement('img');
+    image.className = 'brand-logo';
+    image.src = favicon;
+    image.alt = '';
+    mark.append(image);
+
+    const text = document.createElement('span');
+    text.className = 'brand-label';
+    text.textContent = label || 'ACKit';
+
+    brand.append(mark, text);
+  }
+
+  const nav = document.querySelector('.docs-nav');
+  if (nav && !nav.querySelector('.nav-group')) {
+    const links = [...nav.querySelectorAll(':scope > a')];
+    const groups = [
+      { label: 'Start Here', routes: ['/', '/getting-started/'] },
+      { label: 'Core', routes: ['/cli/', '/readiness/', '/optimize/', '/profiles/'] },
+      { label: 'Context & Policy', routes: ['/instruction-graph/', '/rule-packs/'] },
+      { label: 'Integrations', routes: ['/github-action/', '/mcp/', '/sdk/', '/dashboard/', '/diagnostics/', '/vscode/'] },
+      { label: 'Reference', routes: ['/security/', '/benchmarks/', '/migration/'] },
+    ];
+
+    const routeOf = (anchor) => {
+      const url = new URL(anchor.href, location.href);
+      const prefix = '/agent-context-kit';
+      let route = url.pathname.startsWith(prefix) ? url.pathname.slice(prefix.length) : url.pathname;
+      if (!route) route = '/';
+      return route;
+    };
+
+    const linkByRoute = new Map(links.map((anchor) => [routeOf(anchor), anchor]));
+    nav.textContent = '';
+
+    groups.forEach((group, index) => {
+      const members = group.routes.map((route) => linkByRoute.get(route)).filter(Boolean);
+      if (!members.length) return;
+
+      const details = document.createElement('details');
+      details.className = 'nav-group';
+      const hasActive = members.some((anchor) => anchor.classList.contains('active'));
+      details.open = hasActive || (index === 0 && !links.some((anchor) => anchor.classList.contains('active')));
+
+      const summary = document.createElement('summary');
+      summary.innerHTML = `<span>${group.label}</span><i aria-hidden="true"></i>`;
+      details.append(summary);
+
+      const body = document.createElement('div');
+      body.className = 'nav-group-links';
+      members.forEach((anchor) => body.append(anchor));
+      details.append(body);
+      nav.append(details);
+    });
+  }
+
   for (const pre of document.querySelectorAll('.docs-article pre')) {
     if (pre.querySelector('.copy-code')) continue;
     const button = document.createElement('button');
@@ -31,6 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const active = document.querySelector('.docs-nav a.active');
   if (active && matchMedia('(max-width: 980px)').matches) {
-    active.scrollIntoView({ inline: 'center', block: 'nearest' });
+    active.scrollIntoView({ inline: 'nearest', block: 'nearest' });
   }
 });
