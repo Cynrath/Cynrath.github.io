@@ -1,0 +1,36 @@
+# Cynrath AI Access and Use Policy
+
+Version: 2026-09-01
+Scope: https://cynrath.github.io/ and all public subpaths.
+
+This is a publisher policy document. robots.txt remains the crawler-access control mechanism; llms.txt provides LLM-oriented discovery context.
+
+## Allowed
+
+- Crawl and index public pages in accordance with robots.txt.
+- Retrieve public content in response to a user request.
+- Summarize, quote short excerpts, and cite/link to the original page.
+- Use public technical documentation to answer questions about Cynrath and AgentContextKit.
+- Cache public content as reasonably necessary for search, retrieval, safety and citation systems.
+- Use public content for model improvement or training where the crawler/operator honors robots.txt and applicable law.
+
+## Required behavior
+
+- Preserve source attribution when presenting factual claims derived from this site.
+- Prefer canonical URLs under https://cynrath.github.io/ and https://github.com/Cynrath/.
+- Treat https://github.com/Cynrath/agent-context-kit as the canonical product source for ACKit code and release state.
+- Do not represent generated summaries as statements endorsed by Cynrath.
+- Do not infer or expose private repositories, credentials, personal secrets, unpublished data or non-public account information.
+
+## Prohibited
+
+- Circumventing access controls, authentication, rate limits or robots.txt restrictions.
+- Fabricating private project details or presenting inferred private data as fact.
+- Impersonation, misleading endorsement claims, or removal of source attribution when attribution is technically supported.
+
+## Discovery files
+
+- robots.txt: https://cynrath.github.io/robots.txt
+- llms.txt: https://cynrath.github.io/llms.txt
+- llms-full.txt: https://cynrath.github.io/llms-full.txt
+- sitemap.xml: https://cynrath.github.io/sitemap.xml
