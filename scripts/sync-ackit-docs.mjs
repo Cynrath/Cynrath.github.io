@@ -1,603 +1,235 @@
 #!/usr/bin/env node
 /**
- * Sync ACKit docs — generates static HTML for https://cynrath.github.io/agent-context-kit/
- * Usage: node ./scripts/sync-ackit-docs.mjs --source <path-to-agent-context-kit>
- * Requirements:
- * - accepts --source CLI arg, no hard-coded O:\ path in committed code
- * - reads canonical ACKit docs/package metadata
- * - generates deterministic static HTML, no internet, no exec of ACKit repo scripts
- * - idempotent, only updates agent-context-kit/** plus sitemap/homepage references
+ * Sync ACKit docs into cynrath.github.io/agent-context-kit/.
+ *
+ * Usage:
+ *   node ./scripts/sync-ackit-docs.mjs --source <path-to-agent-context-kit>
+ *
+ * Design goals:
+ * - canonical product source stays in agent-context-kit (package.json, README.md, docs/**, CHANGELOG.md)
+ * - static GitHub Pages output; no runtime build, analytics, telemetry, CDN or remote code
+ * - deterministic/idempotent output for a given source version and UTC day
+ * - shared docs theme lives in agent-context-kit/assets and is not overwritten by sync
+ * - generates HTML pages, sitemap, robots rules and LLM discovery files
  */
-
-import { promises as fsp } from "node:fs";
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { promises as fsp } from 'node:fs';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const siteRoot = path.resolve(__dirname, "..");
+const siteRoot = path.resolve(__dirname, '..');
+const docsRoot = path.join(siteRoot, 'agent-context-kit');
+const SITE = 'https://cynrath.github.io';
+const REPO = 'https://github.com/Cynrath/agent-context-kit';
+const NPM = 'https://www.npmjs.com/package/@cynrath/agent-context-kit';
 
 function parseArgs() {
   const args = process.argv.slice(2);
-  let source = null;
+  let source = '';
   for (let i = 0; i < args.length; i++) {
-    if (args[i] === "--source" && i + 1 < args.length) {
-      source = path.resolve(args[i + 1]);
-      i++;
-    } else if (args[i].startsWith("--source=")) {
-      source = path.resolve(args[i].slice("--source=".length));
-    }
+    if (args[i] === '--source' && args[i + 1]) source = args[++i];
+    else if (args[i].startsWith('--source=')) source = args[i].slice(9);
   }
-  if (!source) {
-    console.error("Usage: node ./scripts/sync-ackit-docs.mjs --source <path-to-agent-context-kit>");
-    process.exit(1);
-  }
-  return { source };
+  if (!source) throw new Error('Usage: node ./scripts/sync-ackit-docs.mjs --source <path-to-agent-context-kit>');
+  return { source: path.resolve(source) };
 }
 
-function escapeHtml(s) {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+function esc(value) {
+  return String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
+async function write(file, content) {
+  await fsp.mkdir(path.dirname(file), { recursive: true });
+  await fsp.writeFile(file, content.replace(/\r\n/g,'\n'), 'utf8');
+}
+async function readOptional(file) {
+  try { return await fsp.readFile(file, 'utf8'); } catch { return ''; }
+}
 function readVersion(source) {
-  try {
-    const pkg = JSON.parse(fs.readFileSync(path.join(source, "package.json"), "utf8"));
-    return pkg.version || "0.2.1";
-  } catch {
-    return "0.2.1";
-  }
+  const pkg = JSON.parse(fs.readFileSync(path.join(source,'package.json'),'utf8'));
+  if (!pkg.version) throw new Error('ACKit package.json has no version');
+  return pkg.version;
 }
 
-async function ensureDir(p) {
-  await fsp.mkdir(p, { recursive: true });
-}
+const nav = [
+  ['','Overview'],['getting-started','Getting Started'],['cli','CLI'],['readiness','Readiness'],
+  ['optimize','Optimize'],['profiles','Profiles'],['instruction-graph','Instruction Graph'],
+  ['rule-packs','Rule Packs'],['github-action','GitHub Action'],['mcp','MCP'],['sdk','SDK'],
+  ['dashboard','Dashboard'],['diagnostics','Diagnostics'],['vscode','VS Code'],['security','Security'],
+  ['benchmarks','Benchmarks'],['migration','Migration']
+];
 
-async function writeFileDeterministic(filePath, content) {
-  // Ensure LF, no BOM, deterministic
-  const normalized = content.replace(/\r\n/g, "\n");
-  await fsp.writeFile(filePath, normalized, "utf8");
-}
-
-function pageTemplate({ title, description, canonical, version, body, active }) {
-  const navItems = [
-    { href: "/agent-context-kit/", label: "Overview", id: "index" },
-    { href: "/agent-context-kit/getting-started/", label: "Getting Started", id: "getting-started" },
-    { href: "/agent-context-kit/cli/", label: "CLI", id: "cli" },
-    { href: "/agent-context-kit/readiness/", label: "Readiness", id: "readiness" },
-    { href: "/agent-context-kit/optimize/", label: "Optimize", id: "optimize" },
-    { href: "/agent-context-kit/profiles/", label: "Profiles", id: "profiles" },
-    { href: "/agent-context-kit/instruction-graph/", label: "Instruction Graph", id: "instruction-graph" },
-    { href: "/agent-context-kit/rule-packs/", label: "Rule Packs", id: "rule-packs" },
-    { href: "/agent-context-kit/github-action/", label: "GitHub Action", id: "github-action" },
-    { href: "/agent-context-kit/mcp/", label: "MCP", id: "mcp" },
-    { href: "/agent-context-kit/sdk/", label: "SDK", id: "sdk" },
-    { href: "/agent-context-kit/dashboard/", label: "Dashboard", id: "dashboard" },
-    { href: "/agent-context-kit/diagnostics/", label: "Diagnostics", id: "diagnostics" },
-    { href: "/agent-context-kit/vscode/", label: "VS Code", id: "vscode" },
-    { href: "/agent-context-kit/security/", label: "Security", id: "security" },
-    { href: "/agent-context-kit/benchmarks/", label: "Benchmarks", id: "benchmarks" },
-    { href: "/agent-context-kit/migration/", label: "Migration", id: "migration" },
-  ];
-  const navHtml = navItems
-    .map((item) => {
-      const isActive = active === item.id ? ' aria-current="page" class="active"' : "";
-      return `<a href="${item.href}"${isActive}>${escapeHtml(item.label)}</a>`;
-    })
-    .join("\n          ");
-
+function template({ title, description, slug, version, body }) {
+  const canonical = `${SITE}/agent-context-kit/${slug ? `${slug}/` : ''}`;
+  const navHtml = nav.map(([id,label]) => {
+    const href = `/agent-context-kit/${id ? `${id}/` : ''}`;
+    return `<a href="${href}"${id===slug?' class="active" aria-current="page"':''}>${esc(label)}</a>`;
+  }).join('\n          ');
+  const schema = JSON.stringify({
+    '@context':'https://schema.org','@type':'TechArticle',headline:`${title} — AgentContextKit`,
+    description,url:canonical,isPartOf:{'@type':'WebSite',name:'AgentContextKit Documentation',url:`${SITE}/agent-context-kit/`},
+    about:{'@type':'SoftwareSourceCode',name:'AgentContextKit',codeRepository:REPO,programmingLanguage:'TypeScript',softwareVersion:version,license:'https://opensource.org/licenses/MIT'}
+  });
   return `<!doctype html>
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(title)} — ACKit ${escapeHtml(version)}</title>
-  <meta name="description" content="${escapeHtml(description)}">
-  <link rel="canonical" href="https://cynrath.github.io${canonical}">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://cynrath.github.io${canonical}">
-  <meta property="og:title" content="${escapeHtml(title)} — ACKit">
-  <meta property="og:description" content="${escapeHtml(description)}">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+  <meta name="theme-color" content="#07111f">
+  <title>${esc(title)} — ACKit ${esc(version)}</title>
+  <meta name="description" content="${esc(description)}">
+  <link rel="canonical" href="${canonical}">
+  <link rel="describedby" href="/agent-context-kit/llms.txt">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="${canonical}">
+  <meta property="og:title" content="${esc(title)} — AgentContextKit">
+  <meta property="og:description" content="${esc(description)}">
+  <meta property="og:site_name" content="Cynrath">
   <meta name="twitter:card" content="summary">
+  <script type="application/ld+json">${schema}</script>
   <link rel="stylesheet" href="/agent-context-kit/assets/ackit-docs.css">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
-  <header class="site-header">
-    <div class="shell header-inner">
-      <a class="brand" href="/agent-context-kit/">ACKit</a>
-      <nav class="docs-nav" aria-label="Docs navigation">
-          ${navHtml}
-      </nav>
-      <a class="button button-small" href="https://github.com/Cynrath/agent-context-kit" rel="noopener" target="_blank">GitHub</a>
-    </div>
-  </header>
-  <main id="main" class="shell docs-main">
-    <article class="docs-article">
-      ${body}
-    </article>
-  </main>
-  <footer class="site-footer">
-    <div class="shell footer-inner">
-      <p>AgentContextKit ${escapeHtml(version)} — offline-first, deterministic, no telemetry. <a href="https://github.com/Cynrath/agent-context-kit">GitHub</a> · <a href="https://www.npmjs.com/package/@cynrath/agent-context-kit">npm</a> · <a href="https://cynrath.github.io/">Cyranth</a></p>
-    </div>
-  </footer>
+  <header class="site-header"><div class="shell header-inner">
+    <a class="brand" href="/agent-context-kit/">ACKit Docs</a>
+    <nav class="docs-nav" aria-label="ACKit documentation">${navHtml}</nav>
+    <a class="button button-small" href="${REPO}" rel="noopener" target="_blank">GitHub</a>
+  </div></header>
+  <main id="main" class="shell docs-main"><article class="docs-article">${body}</article></main>
+  <footer class="site-footer"><div class="shell footer-inner"><p>AgentContextKit ${esc(version)} · offline-first · deterministic · MIT</p><p><a href="${NPM}">npm</a> · <a href="${REPO}">GitHub</a> · <a href="${SITE}/">Cynrath</a></p></div></footer>
   <script src="/agent-context-kit/assets/ackit-docs.js" defer></script>
 </body>
-</html>
-`;
+</html>\n`;
 }
 
-async function main() {
-  const { source } = parseArgs();
-  const version = readVersion(source);
-  console.log(`[sync] source: ${source}`);
-  console.log(`[sync] version: ${version}`);
-  console.log(`[sync] siteRoot: ${siteRoot}`);
-
-  // Read canonical docs for content snippets (best-effort, no exec)
-  let readmeSnippet = "";
-  let changelogSnippet = "";
-  try {
-    const readme = await fsp.readFile(path.join(source, "README.md"), "utf8");
-    // Extract first 2000 chars for hero
-    readmeSnippet = readme.slice(0, 2000);
-  } catch {}
-  try {
-    const changelog = await fsp.readFile(path.join(source, "CHANGELOG.md"), "utf8");
-    changelogSnippet = changelog.slice(0, 4000);
-  } catch {}
-
-  const outRoot = path.join(siteRoot, "agent-context-kit");
-  await ensureDir(outRoot);
-
-  // Assets
-  const assetsDir = path.join(outRoot, "assets");
-  await ensureDir(assetsDir);
-  const css = `/* ACKit docs — framework-free, no CDN, responsive */
-* { box-sizing: border-box; }
-:root { --bg: #0b141f; --fg: #e6edf3; --muted: #8b949e; --accent: #58a6ff; --border: #30363d; --code-bg: #161b22; }
-html[data-theme="dark"] { color-scheme: dark; }
-body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
-a { color: var(--accent); text-decoration: none; }
-a:hover { text-decoration: underline; }
-.shell { max-width: 1100px; margin: 0 auto; padding: 0 1rem; }
-.skip-link { position: absolute; left: -9999px; }
-.site-header { border-bottom: 1px solid var(--border); background: rgba(13,17,23,0.8); backdrop-filter: blur(6px); position: sticky; top: 0; z-index: 10; }
-.header-inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.75rem 1rem; flex-wrap: wrap; }
-.brand { font-weight: 700; font-size: 1.1rem; color: var(--fg); }
-.docs-nav { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-.docs-nav a { padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.85rem; border: 1px solid transparent; }
-.docs-nav a.active { background: var(--code-bg); border-color: var(--border); color: var(--fg); }
-.button { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.5rem 0.75rem; border-radius: 6px; background: var(--accent); color: #fff; font-weight: 600; }
-.button-small { padding: 0.35rem 0.6rem; font-size: 0.85rem; }
-.docs-main { padding: 2rem 1rem; }
-.docs-article { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; }
-.docs-article h1 { margin-top: 0; }
-.docs-article h2 { margin-top: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
-.docs-article pre { background: var(--code-bg); padding: 1rem; overflow-x: auto; border-radius: 6px; border: 1px solid var(--border); }
-.docs-article code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.9em; }
-.site-footer { border-top: 1px solid var(--border); padding: 1rem 0; margin-top: 2rem; color: var(--muted); font-size: 0.85rem; }
-@media (max-width: 700px) { .docs-nav { gap: 0.25rem; } .docs-nav a { font-size: 0.8rem; padding: 0.2rem 0.4rem; } }
-`;
-  const js = `// ACKit docs — vanilla, no CDN, no analytics
-document.addEventListener('DOMContentLoaded', () => {
-  const toggle = document.querySelector('[data-theme-toggle]');
-  if (toggle) {
-    toggle.addEventListener('click', () => {
-      const html = document.documentElement;
-      const current = html.getAttribute('data-theme');
-      html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
-    });
-  }
-});
-`;
-
-  await writeFileDeterministic(path.join(assetsDir, "ackit-docs.css"), css);
-  await writeFileDeterministic(path.join(assetsDir, "ackit-docs.js"), js);
-
-  // Helper to generate body for each page
-  const commonInstall = `<pre><code>npm install --global @cynrath/agent-context-kit@${escapeHtml(version)}
-ackit --version  # ${escapeHtml(version)}
-npx --yes @cynrath/agent-context-kit@${escapeHtml(version)} --help</code></pre>`;
-
-  // Index page
-  const indexBody = `
-<h1>AgentContextKit ${escapeHtml(version)}</h1>
-<p><strong>Offline-first toolkit for agent-ready repositories:</strong> readiness scoring, instruction graphs, context packs, policy/rule packs, MCP, GitHub Actions, diagnostics, and VS Code.</p>
-<p><a class="button" href="https://github.com/Cynrath/agent-context-kit">GitHub</a> <a class="button" href="https://www.npmjs.com/package/@cynrath/agent-context-kit">npm</a> <a class="button" href="https://github.com/Cynrath/agent-context-kit/releases/tag/v${escapeHtml(version)}">Release v${escapeHtml(version)}</a></p>
-<h2>Install</h2>
-${commonInstall}
-<h2>Quickstart</h2>
-<pre><code>ackit init --dry-run        # plan shims + 4 built-in skills (writes nothing)
-ackit scan --ci             # gate: exit 1 at/over threshold (medium)
-ackit readiness             # 0–100, N/A renormalization, --strict/--fail-below
-ackit instructions --explain # graph v2 with provenance
-ackit optimize --explain    # 8-class advisor, waste estimates
-ackit pack --profile codex --max-tokens 50000  # provider-aware, budgeted
-ackit dashboard --port 0 --open  # localhost-only</code></pre>
-<h2>Why ACKit?</h2>
-<table style="width:100%; border-collapse:collapse; border:1px solid #30363d;">
-<thead><tr><th style="border:1px solid #30363d; padding:8px; text-align:left;">Before</th><th style="border:1px solid #30363d; padding:8px; text-align:left;">With ACKit</th></tr></thead>
-<tbody>
-<tr><td style="border:1px solid #30363d; padding:8px;">Convention-based — nothing is verified</td><td style="border:1px solid #30363d; padding:8px;"><strong>Deterministic local analysis</strong></td></tr>
-<tr><td style="border:1px solid #30363d; padding:8px;">Cloud-coupled — code leaves the machine</td><td style="border:1px solid #30363d; padding:8px;"><strong>Offline-by-construction</strong> — zero network</td></tr>
-<tr><td style="border:1px solid #30363d; padding:8px;">Secrets leak into prompts/logs</td><td style="border:1px solid #30363d; padding:8px;"><strong>Redacted at construction</strong></td></tr>
-</tbody></table>
-<h2>Features</h2>
-<ul>
-<li><strong>Readiness 0–100</strong> — 6 categories, weighted renormalization</li>
-<li><strong>Instruction Graph v2</strong> — Codex/Claude/Gemini/Copilot, scope→precedence</li>
-<li><strong>Provider Profiles</strong> — codex/claude/copilot/gemini/generic, budget/includePriority</li>
-<li><strong>Rule Packs</strong> — declarative, offline, ReDoS/size guards</li>
-<li><strong>Optimize v2</strong> — 8-class taxonomy, waste estimates</li>
-<li><strong>Context Packs</strong> — weighted ranking, manifest hash/reason/tokens</li>
-<li><strong>Scanning</strong> — SARIF 2.1.0, redacted evidence</li>
-<li><strong>Tasks</strong> — docs-first, single-active</li>
-<li><strong>Dashboard</strong> — localhost-only 127.0.0.1, CSP</li>
-<li><strong>Diagnostics</strong> — bundle-manifest.json with sha256</li>
-<li><strong>MCP</strong> — stdio, 9 tools, 5 resources, 4 prompts</li>
-<li><strong>VS Code</strong> — Cynrath.ackit-vscode v${escapeHtml(version)}</li>
-<li><strong>GitHub Action</strong> — Cynrath/agent-context-kit@v${escapeHtml(version)}</li>
-</ul>
-<h2>Docs</h2>
-<ul>
-<li><a href="/agent-context-kit/getting-started/">Getting Started</a></li>
-<li><a href="/agent-context-kit/cli/">CLI Reference</a></li>
-<li><a href="/agent-context-kit/security/">Security &amp; Offline Guarantee</a></li>
-<li><a href="/agent-context-kit/benchmarks/">Benchmarks</a></li>
-</ul>
-<p><small>Canonical source: <code>README.md</code> + <code>docs/**</code> + <code>CHANGELOG.md</code> from <code>agent-context-kit@${escapeHtml(version)}</code>. This site is a presentation layer only — no CDN, no analytics, no tracking.</small></p>
-`;
-
-  await writeFileDeterministic(
-    path.join(outRoot, "index.html"),
-    pageTemplate({
-      title: "AgentContextKit",
-      description: "Offline-first toolkit for agent-ready repositories: readiness scoring, instruction graphs, context packs, policy/rule packs, MCP, GitHub Actions, diagnostics, and VS Code.",
-      canonical: "/agent-context-kit/",
-      version,
-      body: indexBody,
-      active: "index",
-    }),
-  );
-
-  // Subpages — minimal but real content, validated against built CLI --help
-  const pages = [
-    {
-      id: "getting-started",
-      path: "getting-started/index.html",
-      title: "Getting Started",
-      description: "Install and quickstart ACKit offline-first toolkit",
-      body: `<h1>Getting Started</h1>
-<p>Requires <strong>Node ≥22</strong>, <strong>pnpm 11</strong> (dev).</p>
-<pre><code>npm install --global @cynrath/agent-context-kit@${escapeHtml(version)}
-ackit --version  # ${escapeHtml(version)}
-ackit init --dry-run
+function pages(version) {
+  const install = `npm install --global @cynrath/agent-context-kit@${version}\nackit --version\nackit --help`;
+  return [
+    {slug:'',title:'AgentContextKit',description:'Offline-first deterministic toolkit for agent-ready repositories.',body:`
+<h1>AgentContextKit ${esc(version)}</h1>
+<p><strong>Turn repository context into something agents and humans can inspect.</strong> ACKit combines readiness scoring, instruction graphs, context packs, policy-as-code, security scanning, tasks, MCP, dashboard and editor tooling without sending repository data to a hosted analysis service.</p>
+<p><a class="button" href="/agent-context-kit/getting-started/">Getting Started</a><a class="button" href="/agent-context-kit/cli/">CLI Reference</a><a class="button" href="${REPO}">GitHub</a><a class="button" href="${NPM}">npm</a></p>
+<h2>Install</h2><pre><code>${esc(install)}</code></pre>
+<h2>Quickstart</h2><pre><code>ackit init --dry-run
 ackit readiness
-ackit scan --ci</code></pre>
-<p>From source:</p>
-<pre><code>pnpm install --frozen-lockfile && pnpm build
-node dist/cli/index.js --help</code></pre>
-<p>See <a href="https://github.com/Cynrath/agent-context-kit">GitHub</a> for full guide.</p>`,
-    },
-    {
-      id: "cli",
-      path: "cli/index.html",
-      title: "CLI Reference",
-      description: "ACKit CLI commands and options",
-      body: `<h1>CLI Reference</h1>
-<pre><code>ackit init --dry-run
-ackit scan --ci --changed --staged --since --range --baseline --watch --fail-below
+ackit instructions --explain
+ackit scan --ci
+ackit pack --profile codex --max-tokens 50000
+ackit dashboard --port 0 --open</code></pre>
+<h2>Core capabilities</h2>
+<ul><li><strong>Agent Readiness</strong> — explainable 0–100 scoring with strict gates and baselines.</li><li><strong>Instruction Graph v2</strong> — provider-aware scope, precedence, provenance, conflicts and duplicates.</li><li><strong>Context Packs</strong> — deterministic ranking, token budgets and per-file manifests.</li><li><strong>Policy Packs</strong> — machine-checkable repository rules.</li><li><strong>Scanning + SARIF</strong> — secrets, connection strings, entropy, absolute paths, CI pinning and redacted evidence.</li><li><strong>Tasks</strong> — docs-first single-active workflow and completion gates.</li><li><strong>MCP + SDK</strong> — local integrations for agents and tooling.</li><li><strong>Dashboard + VS Code</strong> — local inspection surfaces for readiness, findings, graph, tasks and policy.</li></ul>
+<h2>Documentation map</h2><p>Start with <a href="/agent-context-kit/getting-started/">Getting Started</a>, then use the CLI, Readiness, Instruction Graph, Security, MCP and editor pages as references.</p>`},
+    {slug:'getting-started',title:'Getting Started',description:'Install and initialize AgentContextKit.',body:`<h1>Getting Started</h1><p>ACKit requires Node.js 22 or newer. Installation is global or via npx; repository analysis runs locally.</p><h2>Install</h2><pre><code>${esc(install)}</code></pre><h2>First pass</h2><pre><code>ackit init --dry-run
+ackit readiness
+ackit scan --ci
+ackit instructions --explain</code></pre><p><code>init --dry-run</code> shows planned repository shims without writing them. Use readiness and scan as the first deterministic checks.</p>`},
+    {slug:'cli',title:'CLI Reference',description:'ACKit commands, options and exit behavior.',body:`<h1>CLI Reference</h1><p>The CLI favors stable terminal and JSON output so the same checks can be used interactively and in CI.</p><pre><code>ackit init --dry-run
 ackit readiness --fail-below 80 --strict --baseline --compare --json
-ackit optimize --fix --dry-run --profile codex --explain --category --min-severity --format
-ackit diagnostics --json | bundle --out ./diag.zip --redact-check
-ackit dashboard --host 127.0.0.1 --port 0 --allow-nonlocal --open
+ackit scan --ci --changed --staged --since --range --baseline --watch
 ackit instructions --provider codex --profile codex --for &lt;path&gt; --explain --json
-ackit pack --max-tokens 50000 --profile codex --include &lt;glob&gt; --changed
-ackit skills list/validate/install
-ackit task create/list/start/complete
+ackit pack --profile codex --max-tokens 50000 --include &lt;glob&gt; --changed
+ackit optimize --explain --fix --dry-run --format json
 ackit policy check
-ackit config check
-ackit cache clean
-ackit mcp serve</code></pre>
-<p>Every command supports <code>--json</code> and <code>--help</code>. Exit codes: 0 ok, 1 threshold, 2 usage/config, 3 env, 4 security, 5 internal.</p>`,
-    },
-    {
-      id: "readiness",
-      path: "readiness/index.html",
-      title: "Readiness",
-      description: "0–100 readiness scoring across 6 categories",
-      body: `<h1>Readiness</h1>
-<pre><code>ackit readiness
+ackit task create | list | start | complete
+ackit diagnostics --json
+ackit diagnostics bundle --out ./ackit-diag.zip --redact-check
+ackit dashboard --host 127.0.0.1 --port 0 --open
+ackit mcp serve</code></pre><h2>Exit codes</h2><p>0 success, 1 threshold failure, 2 usage/configuration, 3 environment, 4 security, 5 internal error.</p>`},
+    {slug:'readiness',title:'Readiness',description:'Explainable ACKit repository readiness scoring.',body:`<h1>Readiness</h1><p>Readiness summarizes whether a repository exposes enough instructions, security controls, context discipline, task state, skills and policy for repeatable agent-assisted work.</p><pre><code>ackit readiness
 ackit readiness --fail-below 80 --strict
-ackit readiness --baseline .ackit/readiness.json --compare</code></pre>
-<p>6 categories: Instructions 25, Security 25, Context 20, Task 10, Skills 10, Policy 10 — weighted renormalization, strict threshold, baseline/compare.</p>
-<p>Output: <code>ackit.readiness.v1</code> JSON + terminal tree.</p>`,
-    },
-    {
-      id: "optimize",
-      path: "optimize/index.html",
-      title: "Optimize",
-      description: "Hygiene advisor v2 with 8-class taxonomy and waste estimates",
-      body: `<h1>Optimize</h1>
-<pre><code>ackit optimize --explain
+ackit readiness --baseline .ackit/readiness.json --compare</code></pre><h2>Score model</h2><p>Six categories are weighted and renormalized when a category is not applicable. JSON output uses the stable <code>ackit.readiness.v1</code> contract.</p>`},
+    {slug:'optimize',title:'Optimize',description:'Instruction and context hygiene advisor.',body:`<h1>Optimize v2</h1><p>Optimize finds redundant, conflicting or expensive repository instructions and produces evidence-backed recommendations.</p><pre><code>ackit optimize --explain
 ackit optimize --category instruction --min-severity medium --format json
-ackit optimize --fix --dry-run</code></pre>
-<p>8-class taxonomy, evidence/confidence/tokenWasteEstimate/provenance/plan, --fix --dry-run.</p>`,
-    },
-    {
-      id: "profiles",
-      path: "profiles/index.html",
-      title: "Provider Profiles",
-      description: "Provider-aware profiles for Codex, Claude, Copilot, Gemini",
-      body: `<h1>Provider Profiles</h1>
-<pre><code>ackit pack --profile codex --max-tokens 50000
+ackit optimize --fix --dry-run</code></pre><p>Suggestions include evidence, confidence, token-waste estimates, provenance and a proposed plan.</p>`},
+    {slug:'profiles',title:'Provider Profiles',description:'Provider-aware context profiles for coding agents.',body:`<h1>Provider Profiles</h1><p>ACKit ships profiles for Codex, Claude, Copilot, Gemini and a generic fallback. Profiles influence provider-aware instruction and context selection.</p><pre><code>ackit pack --profile codex --max-tokens 50000
 ackit pack --profile claude
 ackit pack --profile copilot
-ackit pack --profile gemini
-ackit pack --profile generic</code></pre>
-<p>5 built-ins, selection: CLI --profile &gt; ackit.yml profile &gt; auto-detect &gt; generic. Budget/includePriority integrated.</p>`,
-    },
-    {
-      id: "instruction-graph",
-      path: "instruction-graph/index.html",
-      title: "Instruction Graph",
-      description: "Instruction Graph v2 with scope→precedence",
-      body: `<h1>Instruction Graph v2</h1>
-<pre><code>ackit instructions --explain
-ackit instructions --provider codex --for src/app.ts --json</code></pre>
-<p>Codex/Claude/Gemini/Copilot+shared, nesting, includeScopes/excludeScopes/providerApplicability/provenance/shadowedBy/duplicateOf, applyTo globs, depth→precedence→id.</p>`,
-    },
-    {
-      id: "rule-packs",
-      path: "rule-packs/index.html",
-      title: "Rule Packs",
-      description: "Declarative policy rule packs, offline, ReDoS guards",
-      body: `<h1>Rule Packs</h1>
-<pre><code>ackit policy check
-# ackit.yml:
-policy:
-  rulePacks: ["./packs/security.yml", "npm:team-pack/rules.yml"]</code></pre>
-<p>Schema <code>schemas/rule-pack.schema.json</code> v1 (presence|pattern|config|dependency|instruction), glob/scope/match, overrides/composition, ReDoS/size guards. Remote http/https/ftp refuses, pre-installed npm only.</p>`,
-    },
-    {
-      id: "github-action",
-      path: "github-action/index.html",
-      title: "GitHub Action",
-      description: "Official GitHub Action Cynrath/agent-context-kit@v0.2.1",
-      body: `<h1>GitHub Action</h1>
-<pre><code>permissions:
+ackit pack --profile gemini</code></pre>`},
+    {slug:'instruction-graph',title:'Instruction Graph',description:'Resolve nested agent instructions with provenance and precedence.',body:`<h1>Instruction Graph v2</h1><p>Instruction Graph resolves repository guidance from Codex, Claude, Gemini, Copilot and shared files. It tracks scope, precedence, provenance, shadowing, duplicates and conflicts.</p><pre><code>ackit instructions --explain
+ackit instructions --provider codex --for src/app.ts --json</code></pre>`},
+    {slug:'rule-packs',title:'Rule Packs',description:'Declarative offline repository policy checks.',body:`<h1>Rule / Policy Packs</h1><p>Rule packs turn repository requirements into machine-checkable presence, pattern, config, dependency and instruction checks.</p><pre><code>ackit policy check</code></pre><pre><code>policy:
+  rulePacks:
+    - ./packs/security.yml
+    - npm:team-pack/rules.yml</code></pre><p>Remote HTTP sources are refused; rule evaluation includes size and ReDoS guards.</p>`},
+    {slug:'github-action',title:'GitHub Action',description:'Run ACKit repository checks in GitHub Actions.',body:`<h1>GitHub Action</h1><p>Use the official action for repeatable repository checks in CI with least-privilege permissions.</p><pre><code>permissions:
   contents: read
 jobs:
   ackit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a
-      - uses: Cynrath/agent-context-kit@v${escapeHtml(version)}
+      - uses: Cynrath/agent-context-kit@v${esc(version)}
         with:
           command: scan
           args: "--json"
           fail-threshold: high
-          upload-sarif: "false"</code></pre>
-<p>Inputs command/args/fail-threshold/upload-sarif, outputs findings-json/sarif-path, SARIF 2.1.0, least-privilege.</p>`,
-    },
-    {
-      id: "mcp",
-      path: "mcp/index.html",
-      title: "MCP",
-      description: "Model Context Protocol — stdio only, 9 tools",
-      body: `<h1>MCP</h1>
-<pre><code>{ "mcpServers": { "ackit": { "command": "ackit", "args": ["mcp", "serve"] } } }</code></pre>
-<p>Official SDK stdio, 9 read-only tools, 5 resources, 4 prompts, InMemoryTransport cancellation. No remote transport.</p>`,
-    },
-    {
-      id: "sdk",
-      path: "sdk/index.html",
-      title: "SDK",
-      description: "Public SDK v1 — scanRepository, buildInstructionGraph, buildContextPack",
-      body: `<h1>SDK</h1>
-<pre><code>import { scanRepository } from "@cynrath/agent-context-kit";
-const result = await scanRepository({ canonicalPath: process.cwd() });
-const ac = new AbortController();
-await scanRepository({ canonicalPath: "." }, { signal: ac.signal });</code></pre>
-<p>ESM-only, sideEffects:false, AbortSignal &lt;200ms, AckitError.</p>`,
-    },
-    {
-      id: "dashboard",
-      path: "dashboard/index.html",
-      title: "Dashboard",
-      description: "Local dashboard localhost-only 127.0.0.1, CSP, live polling",
-      body: `<h1>Dashboard</h1>
-<pre><code>ackit dashboard --port 0 --open   # localhost-only
-ackit report serve ./report.html --port 0</code></pre>
-<p>Default host 127.0.0.1, --allow-nonlocal required for non-loopback, CSP default-src 'self', /api/scan|graph|readiness/tasks.json paginated, &lt;50KB vanilla JS.</p>`,
-    },
-    {
-      id: "diagnostics",
-      path: "diagnostics/index.html",
-      title: "Diagnostics",
-      description: "Environment/config/cache/policy/task diagnostics",
-      body: `<h1>Diagnostics</h1>
-<pre><code>ackit diagnostics --json | jq .profile
-ackit diagnostics bundle --out ./ackit-diag.zip --redact-check</code></pre>
-<p>Schema <code>ackit.diagnostics.v1</code>, deterministic bundle-manifest.json with sha256 + redaction count, 5-secret [REDACTED] proof.</p>`,
-    },
-    {
-      id: "vscode",
-      path: "vscode/index.html",
-      title: "VS Code",
-      description: "VS Code extension Cynrath.ackit-vscode v0.2.1",
-      body: `<h1>VS Code</h1>
-<p>Extension <code>Cynrath.ackit-vscode</code> <code>${escapeHtml(version)}</code> — <a href="https://marketplace.visualstudio.com/items?itemName=Cynrath.ackit-vscode">Marketplace</a></p>
-<pre><code>code --install-extension Cynrath.ackit-vscode
-# From VSIX:
-code --install-extension ackit-vscode-${escapeHtml(version)}.vsix</code></pre>
-<p>Features: readiness tree, Problems ACKITxxx, instructions for current file, tasks/policy/optimize, palette Refresh/Show Graph/Optimize/Diagnostics.</p>`,
-    },
-    {
-      id: "security",
-      path: "security/index.html",
-      title: "Security",
-      description: "Offline-first, deterministic, no telemetry, threat model",
-      body: `<h1>Security</h1>
-<p><strong>Offline-first:</strong> zero outbound product egress after installation. See <code>docs/security/THREAT_MODEL.md</code>.</p>
-<ul>
-<li>No telemetry, no cloud, no LLM calls</li>
-<li>Redaction at construction, secrets never in evidence</li>
-<li>Path traversal/realpath containment, ReDoS guards, CSP, bundle redaction</li>
-</ul>
-<pre><code>node scripts/check-offline-egress.mjs  # PASS
-pnpm test tests/security/offline-*.test.ts  # 21 tests PASS</code></pre>`,
-    },
-    {
-      id: "benchmarks",
-      path: "benchmarks/index.html",
-      title: "Benchmarks",
-      description: "Deterministic benchmarks across 20 public repos, aggregate methodology",
-      body: `<h1>Benchmarks</h1>
-<p>7 fixtures, 8 metrics (coldScanMs/warmScanMs/incrementalMs/peakRssMb/filesPerSec/packMs/graphMs/cacheHitRatio), median-of-3, 1.5× thresholds.</p>
-<pre><code>node benchmarks/run.mjs --classes small --out /tmp/out
-node benchmarks/check-thresholds.mjs</code></pre>
-<p>Public evidence: ~20 OSS repos (TypeScript/Go/Rust/Python) pinned SHAs, offline analysis only, aggregate counts (no raw secrets), deterministic.</p>`,
-    },
-    {
-      id: "migration",
-      path: "migration/index.html",
-      title: "Migration",
-      description: "Migration from 0.2.0 to 0.2.1",
-      body: `<h1>Migration 0.2.0 → 0.2.1</h1>
-<ul>
-<li>Update <code>@cynrath/agent-context-kit</code> to <code>${escapeHtml(version)}</code>: <code>npm install --global @cynrath/agent-context-kit@${escapeHtml(version)}</code></li>
-<li>Update GitHub Action: <code>Cynrath/agent-context-kit@v${escapeHtml(version)}</code></li>
-<li>Update VS Code: <code>Cynrath.ackit-vscode</code> v${escapeHtml(version)} via Marketplace</li>
-<li>No config migration needed — <code>ackit.yml</code> v1 still valid</li>
-</ul>`,
-    },
+          upload-sarif: "false"</code></pre>`},
+    {slug:'mcp',title:'MCP',description:'Local Model Context Protocol integration for ACKit.',body:`<h1>MCP</h1><p>ACKit exposes a local stdio MCP server for read-oriented repository inspection. No remote transport is required.</p><pre><code>{
+  "mcpServers": {
+    "ackit": { "command": "ackit", "args": ["mcp", "serve"] }
+  }
+}</code></pre>`},
+    {slug:'sdk',title:'SDK',description:'Programmatic ACKit repository analysis.',body:`<h1>SDK</h1><p>The ESM SDK exposes the same deterministic repository analysis primitives used by the CLI.</p><pre><code>import { scanRepository } from "@cynrath/agent-context-kit";
+
+const result = await scanRepository({ canonicalPath: process.cwd() });</code></pre><p>The package is side-effect free and supports cancellation with <code>AbortSignal</code>.</p>`},
+    {slug:'dashboard',title:'Dashboard',description:'Local ACKit dashboard and live repository views.',body:`<h1>Dashboard</h1><p>The dashboard binds to localhost by default and provides local views for scan results, graph, readiness, tasks and policy.</p><pre><code>ackit dashboard --port 0 --open
+ackit report serve ./report.html --port 0</code></pre><p>Non-loopback binding requires explicit opt-in. The dashboard uses CSP and no analytics.</p>`},
+    {slug:'diagnostics',title:'Diagnostics',description:'ACKit environment and support diagnostics.',body:`<h1>Diagnostics</h1><p>Diagnostics describe the local environment, configuration, cache, policy and task state without exposing plaintext secrets.</p><pre><code>ackit diagnostics --json
+ackit diagnostics bundle --out ./ackit-diag.zip --redact-check</code></pre><p>Bundles include a deterministic manifest with hashes and redaction counts.</p>`},
+    {slug:'vscode',title:'VS Code',description:'AgentContextKit VS Code extension.',body:`<h1>VS Code</h1><p><code>Cynrath.ackit-vscode</code> surfaces readiness, findings, instructions, tasks, policy and diagnostics inside VS Code.</p><pre><code>code --install-extension Cynrath.ackit-vscode</code></pre><p><a href="https://marketplace.visualstudio.com/items?itemName=Cynrath.ackit-vscode">Open the Marketplace listing</a>.</p>`},
+    {slug:'security',title:'Security',description:'ACKit offline-first threat model and redaction guarantees.',body:`<h1>Security</h1><p><strong>Offline-first:</strong> product analysis is designed for zero outbound repository-data egress after installation.</p><ul><li>No telemetry or hosted LLM calls in repository analysis.</li><li>Evidence is redacted at construction.</li><li>Path containment and traversal checks protect file access.</li><li>Rule evaluation includes ReDoS and size guards.</li><li>Dashboard defaults to loopback with CSP.</li></ul><pre><code>node scripts/check-offline-egress.mjs
+pnpm test tests/security/offline-*.test.ts</code></pre>`},
+    {slug:'benchmarks',title:'Benchmarks',description:'Deterministic ACKit performance benchmarks.',body:`<h1>Benchmarks</h1><p>ACKit benchmarks cold scan, warm scan, incremental scan, memory, throughput, context-pack construction, instruction-graph construction and cache behavior.</p><pre><code>node benchmarks/run.mjs --classes small --out /tmp/out
+node benchmarks/check-thresholds.mjs</code></pre><p>Public benchmark evidence uses pinned open-source repositories and aggregate results.</p>`},
+    {slug:'migration',title:'Migration',description:'Upgrade AgentContextKit to the current release.',body:`<h1>Migration</h1><p>Upgrade the package, GitHub Action and VS Code extension together so repository tooling stays on the same release line.</p><pre><code>npm install --global @cynrath/agent-context-kit@${esc(version)}
+ackit --version</code></pre><ul><li>GitHub Action: <code>Cynrath/agent-context-kit@v${esc(version)}</code></li><li>VS Code: <code>Cynrath.ackit-vscode</code></li><li>Run <code>ackit config check</code> after upgrading.</li></ul>`}
   ];
-
-  for (const page of pages) {
-    const fullPath = path.join(outRoot, page.path);
-    await ensureDir(path.dirname(fullPath));
-    await writeFileDeterministic(
-      fullPath,
-      pageTemplate({
-        title: page.title,
-        description: page.description,
-        canonical: `/agent-context-kit/${page.id === "index" ? "" : page.id + "/"}`,
-        version,
-        body: page.body,
-        active: page.id,
-      }),
-    );
-  }
-
-  // Sitemap
-  const sitemapPath = path.join(siteRoot, "sitemap.xml");
-  let sitemapContent = "";
-  try {
-    sitemapContent = await fsp.readFile(sitemapPath, "utf8");
-  } catch {
-    sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n</urlset>`;
-  }
-  const today = new Date().toISOString().slice(0, 10);
-  const urls = [
-    "https://cynrath.github.io/",
-    "https://cynrath.github.io/agent-context-kit/",
-    ...pages.map((p) => `https://cynrath.github.io/agent-context-kit/${p.id}/`),
-  ];
-  // Deduplicate and sort
-  const uniqueUrls = [...new Set(urls)].sort();
-  let newSitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-  for (const url of uniqueUrls) {
-    newSitemap += `  <url>\n    <loc>${url}</loc>\n    <lastmod>${today}</lastmod>\n  </url>\n`;
-  }
-  newSitemap += `</urlset>\n`;
-  await writeFileDeterministic(sitemapPath, newSitemap);
-  console.log(`[sync] sitemap updated ${uniqueUrls.length} urls`);
-
-  // Robots
-  const robotsPath = path.join(siteRoot, "robots.txt");
-  let robotsContent = "";
-  try {
-    robotsContent = await fsp.readFile(robotsPath, "utf8");
-  } catch {
-    robotsContent = "User-agent: *\nAllow: /\n";
-  }
-  if (!robotsContent.includes("Sitemap: https://cynrath.github.io/sitemap.xml")) {
-    robotsContent = robotsContent.trimEnd() + "\nSitemap: https://cynrath.github.io/sitemap.xml\n";
-  }
-  await writeFileDeterministic(robotsPath, robotsContent);
-  console.log(`[sync] robots updated`);
-
-  // Homepage integration — minimal edit
-  const homepagePath = path.join(siteRoot, "index.html");
-  let homepage = await fsp.readFile(homepagePath, "utf8").catch(() => "");
-  if (homepage) {
-    let updated = homepage;
-    // Add Documentation button if missing
-    if (!updated.includes('href="/agent-context-kit/"') && !updated.includes("href=\"/agent-context-kit/\"")) {
-      // Find the Explore AgentContextKit button and add after it
-      const buttonToAdd = `              <a class="button button-secondary" href="/agent-context-kit/">\n                Documentation\n                <svg viewBox="0 0 24 24" aria-hidden="true">\n                  <path d="M7 17 17 7m0 0H9m8 0v8"></path>\n                </svg>\n              </a>`;
-      // Simple: replace the first Explore button's closing </a> with itself + new button
-      updated = updated.replace(
-        /<a class="button button-secondary" href="https:\/\/github\.com\/Cynrath\/agent-context-kit"[\s\S]*?<\/a>/,
-        (match) => `${match}\n${buttonToAdd}`,
-      );
-      // Fallback if not found: insert before </div> of hero-actions
-      if (!updated.includes('href="/agent-context-kit/"')) {
-        updated = updated.replace(
-          /<div class="hero-actions"[^>]*>/,
-          `$&\n${buttonToAdd}`,
-        );
-      }
-    }
-    // Fix stale CLI example: replace "ackit inspect ." with real commands if present
-    if (updated.includes("ackit inspect .") || updated.includes("cyranth --focus")) {
-      // Update the projectVisual terminal from old inspect to real readiness/scan
-      if (updated.includes("ackit inspect .")) {
-        updated = updated.replace(
-          /\$ ackit inspect \.\n[^\n]*ok structure mapped[\s\S]*?ok handoff context saved/,
-          `$ ackit readiness\nReadiness 88/100 ██████████████████░░  (threshold 80 — pass)
-$ ackit scan --ci
-ok structure mapped
-ok privacy rules checked`,
-        );
-      }
-      // Update hero description if needed to mention TypeScript/npm
-      if (!updated.includes("TypeScript")) {
-        // Add to tag-list hero-tags if .NET only — keep but add
-        updated = updated.replace(
-          /<li>Security-aware workflows<\/li>/,
-          `<li>Security-aware workflows</li>\n              <li>TypeScript</li>\n              <li>Offline-first</li>`,
-        );
-      }
-      // Ensure project area describes TypeScript/npm accurately
-      if (updated.includes("Repository structure and stack analysis") && !updated.includes("Instruction Graph")) {
-        updated = updated.replace(
-          /<li>Repository structure and stack analysis<\/li>/,
-          `<li>Instruction Graph v2 &amp; Provider Profiles</li>`,
-        );
-      }
-      if (updated.includes("Task-first documentation templates") && !updated.includes("Context Packs")) {
-        updated = updated.replace(
-          /<li>Task-first documentation templates<\/li>/,
-          `<li>Context Packs &amp; Readiness Scoring</li>`,
-        );
-      }
-    }
-    if (updated !== homepage) {
-      await writeFileDeterministic(homepagePath, updated);
-      console.log(`[sync] homepage updated`);
-    } else {
-      console.log(`[sync] homepage already up to date`);
-    }
-  }
-
-  console.log(`[sync] done — generated ${pages.length + 1} pages + assets`);
-  // Determinism check: run twice would produce same (no timestamps except today date for sitemap)
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+function llms(version, pageList) {
+  const links = pageList.map(p => `- [${p.title}](${SITE}/agent-context-kit/${p.slug ? `${p.slug}/` : ''}): ${p.description}`).join('\n');
+  return `# AgentContextKit\n\n> AgentContextKit (ACKit) ${version} is an offline-first deterministic toolkit for turning repositories into agent-ready working environments.\n\nUse the documentation for exact CLI behavior, readiness, instruction resolution, security and integrations. Canonical product source is the GitHub repository.\n\n## Documentation\n\n${links}\n\n## Source and package\n\n- [GitHub](${REPO}): canonical source, issues, releases and discussions.\n- [npm](${NPM}): package @cynrath/agent-context-kit.\n- [Cynrath](${SITE}/): developer site and project overview.\n`;
+}
+
+async function main() {
+  const { source } = parseArgs();
+  const version = readVersion(source);
+  const readme = await readOptional(path.join(source,'README.md'));
+  const changelog = await readOptional(path.join(source,'CHANGELOG.md'));
+  if (!readme.includes('AgentContextKit') && !readme.includes('ACKit')) throw new Error('Source README does not look like AgentContextKit');
+  if (!changelog) console.warn('[sync] CHANGELOG.md not found; continuing');
+  const assetCss = path.join(docsRoot,'assets','ackit-docs.css');
+  const assetJs = path.join(docsRoot,'assets','ackit-docs.js');
+  if (!fs.existsSync(assetCss) || !fs.existsSync(assetJs)) throw new Error('Docs theme assets are missing. Keep agent-context-kit/assets/ackit-docs.css and ackit-docs.js in the site repo.');
+
+  const list = pages(version);
+  for (const page of list) {
+    const out = path.join(docsRoot, page.slug ? page.slug : '', 'index.html');
+    await write(out, template({ ...page, version }));
+  }
+
+  await write(path.join(docsRoot,'llms.txt'), llms(version,list));
+  await write(path.join(docsRoot,'llms-full.txt'), `# AgentContextKit ${version}\n\n${readme}\n\n---\n\n# Changelog\n\n${changelog}`);
+
+  const today = new Date().toISOString().slice(0,10);
+  const urls = [`${SITE}/`, ...list.map(p => `${SITE}/agent-context-kit/${p.slug ? `${p.slug}/` : ''}`)].sort();
+  let sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+  for (const url of urls) sitemap += `  <url>\n    <loc>${url}</loc>\n    <lastmod>${today}</lastmod>\n  </url>\n`;
+  sitemap += '</urlset>\n';
+  await write(path.join(siteRoot,'sitemap.xml'), sitemap);
+
+  const robots = `User-agent: *\nAllow: /\n\nUser-agent: OAI-SearchBot\nAllow: /\n\nUser-agent: ChatGPT-User\nAllow: /\n\nUser-agent: GPTBot\nAllow: /\n\nUser-agent: ClaudeBot\nAllow: /\n\nUser-agent: Claude-User\nAllow: /\n\nUser-agent: PerplexityBot\nAllow: /\n\nUser-agent: Google-Extended\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`;
+  await write(path.join(siteRoot,'robots.txt'), robots);
+
+  const homepagePath = path.join(siteRoot,'index.html');
+  const homepage = await readOptional(homepagePath);
+  if (homepage && !homepage.includes('/agent-context-kit/')) {
+    console.warn('[sync] homepage has no ACKit documentation link; update index.html before publishing');
+  }
+
+  console.log(`[sync] ACKit ${version}: ${list.length} pages + llms + sitemap/robots`);
+}
+
+main().catch(err => { console.error(err); process.exit(1); });
