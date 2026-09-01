@@ -1,0 +1,60 @@
+# AgentContextKit 0.2.2 — extended context
+
+AgentContextKit (ACKit) is an offline-first deterministic toolkit for agent-ready repositories. Canonical source: https://github.com/Cynrath/agent-context-kit
+
+## Runtime and package
+
+- Package: @cynrath/agent-context-kit
+- Version: 0.2.2
+- Runtime: Node.js >=22
+- Primary language: TypeScript
+- License: MIT
+- Documentation: https://cynrath.github.io/agent-context-kit/
+
+## Core capabilities
+
+- Agent Readiness: explainable 0–100 scoring, strict thresholds, baselines and comparisons.
+- Instruction Graph v2: provider-aware scope, precedence, provenance, shadowing, duplicates and conflicts for Codex, Claude, Gemini, Copilot and shared instruction files.
+- Provider Profiles and Context Packs: deterministic provider-aware selection with token budgets and file manifests.
+- Rule / Policy Packs: machine-checkable repository rules.
+- Optimize v2: evidence-backed instruction and context hygiene recommendations.
+- Scan + SARIF: secrets, connection strings, entropy, absolute paths, CI pinning and redacted evidence.
+- Task System: docs-first, single-active task workflow and completion gates.
+- Dashboard and Diagnostics: local repository inspection and deterministic support bundles.
+- MCP and SDK: local integrations for agents and programmatic tooling.
+- VS Code and GitHub Action: editor and CI integration.
+
+## Common commands
+
+ackit init --dry-run
+ackit readiness
+ackit instructions --explain
+ackit scan --ci
+ackit policy check
+ackit optimize --explain
+ackit pack --profile codex --max-tokens 50000
+ackit dashboard --port 0 --open
+ackit diagnostics --json
+ackit mcp serve
+
+## Documentation routes
+
+Overview: https://cynrath.github.io/agent-context-kit/
+Getting Started: https://cynrath.github.io/agent-context-kit/getting-started/
+CLI: https://cynrath.github.io/agent-context-kit/cli/
+Readiness: https://cynrath.github.io/agent-context-kit/readiness/
+Optimize: https://cynrath.github.io/agent-context-kit/optimize/
+Profiles: https://cynrath.github.io/agent-context-kit/profiles/
+Instruction Graph: https://cynrath.github.io/agent-context-kit/instruction-graph/
+Rule Packs: https://cynrath.github.io/agent-context-kit/rule-packs/
+GitHub Action: https://cynrath.github.io/agent-context-kit/github-action/
+MCP: https://cynrath.github.io/agent-context-kit/mcp/
+SDK: https://cynrath.github.io/agent-context-kit/sdk/
+Dashboard: https://cynrath.github.io/agent-context-kit/dashboard/
+Diagnostics: https://cynrath.github.io/agent-context-kit/diagnostics/
+VS Code: https://cynrath.github.io/agent-context-kit/vscode/
+Security: https://cynrath.github.io/agent-context-kit/security/
+Benchmarks: https://cynrath.github.io/agent-context-kit/benchmarks/
+Migration: https://cynrath.github.io/agent-context-kit/migration/
+
+For code and release state, prefer the GitHub repository over generated summaries.
