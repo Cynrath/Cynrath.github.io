@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (brand && !brand.querySelector('.brand-logo')) {
     const label = brand.textContent.trim();
     brand.textContent = '';
-
     const mark = document.createElement('span');
     mark.className = 'brand-mark';
     const image = document.createElement('img');
@@ -22,44 +21,53 @@ document.addEventListener('DOMContentLoaded', () => {
     image.src = favicon;
     image.alt = '';
     mark.append(image);
-
     const text = document.createElement('span');
     text.className = 'brand-label';
     text.textContent = label || 'ACKit';
-
     brand.append(mark, text);
   }
 
   const nav = document.querySelector('.docs-nav');
+  const routeOf = (anchor) => {
+    const url = new URL(anchor.href, location.href);
+    const prefix = '/agent-context-kit';
+    let route = url.pathname.startsWith(prefix) ? url.pathname.slice(prefix.length) : url.pathname;
+    if (!route) route = '/';
+    return route;
+  };
+
   if (nav && !nav.querySelector('.nav-group')) {
     const links = [...nav.querySelectorAll(':scope > a')];
-    const groups = [
-      { label: 'Start Here', routes: ['/', '/getting-started/'] },
-      { label: 'Core', routes: ['/cli/', '/readiness/', '/optimize/', '/profiles/'] },
-      { label: 'Context & Policy', routes: ['/instruction-graph/', '/rule-packs/'] },
-      { label: 'Integrations', routes: ['/github-action/', '/mcp/', '/sdk/', '/dashboard/', '/diagnostics/', '/vscode/'] },
-      { label: 'Reference', routes: ['/security/', '/benchmarks/', '/migration/'] },
+    const topRoutes = new Set(['/', '/getting-started/']);
+    const categories = [
+      { label: 'Core', test: (route) => /^\/(cli|readiness|optimize|profiles)\/$/.test(route) },
+      { label: 'Context & Policy', test: (route) => /^\/(instruction-graph|rule-packs)\/$/.test(route) || /(context|instruction|policy|rule)/.test(route) },
+      { label: 'Integrations', test: (route) => /^\/(github-action|mcp|sdk|dashboard|diagnostics|vscode)\/$/.test(route) || /(github|mcp|sdk|dashboard|diagnostic|vscode|editor|integration)/.test(route) },
+      { label: 'Reference', test: () => true },
     ];
 
-    const routeOf = (anchor) => {
-      const url = new URL(anchor.href, location.href);
-      const prefix = '/agent-context-kit';
-      let route = url.pathname.startsWith(prefix) ? url.pathname.slice(prefix.length) : url.pathname;
-      if (!route) route = '/';
-      return route;
-    };
-
-    const linkByRoute = new Map(links.map((anchor) => [routeOf(anchor), anchor]));
+    const topLinks = links.filter((anchor) => topRoutes.has(routeOf(anchor)));
+    const groupedLinks = links.filter((anchor) => !topRoutes.has(routeOf(anchor)));
     nav.textContent = '';
 
-    groups.forEach((group, index) => {
-      const members = group.routes.map((route) => linkByRoute.get(route)).filter(Boolean);
-      if (!members.length) return;
+    topLinks.forEach((anchor) => {
+      anchor.classList.add('nav-top-link');
+      nav.append(anchor);
+    });
 
+    const buckets = categories.map((category) => ({ ...category, links: [] }));
+    groupedLinks.forEach((anchor) => {
+      const route = routeOf(anchor);
+      const bucket = buckets.find((category) => category.test(route, anchor.textContent.trim())) ?? buckets.at(-1);
+      bucket.links.push(anchor);
+    });
+
+    buckets.forEach((group) => {
+      if (!group.links.length) return;
       const details = document.createElement('details');
       details.className = 'nav-group';
-      const hasActive = members.some((anchor) => anchor.classList.contains('active'));
-      details.open = hasActive || (index === 0 && !links.some((anchor) => anchor.classList.contains('active')));
+      const hasActive = group.links.some((anchor) => anchor.classList.contains('active'));
+      details.open = hasActive;
 
       const summary = document.createElement('summary');
       summary.innerHTML = `<span>${group.label}</span><i aria-hidden="true"></i>`;
@@ -67,10 +75,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const body = document.createElement('div');
       body.className = 'nav-group-links';
-      members.forEach((anchor) => body.append(anchor));
+      group.links.forEach((anchor) => body.append(anchor));
       details.append(body);
       nav.append(details);
     });
+
+    const groups = [...nav.querySelectorAll('.nav-group')];
+    groups.forEach((details) => {
+      details.addEventListener('toggle', () => {
+        if (!details.open) return;
+        groups.forEach((other) => {
+          if (other !== details) other.open = false;
+        });
+      });
+    });
+  }
+
+  const headerInner = document.querySelector('.header-inner');
+  if (headerInner && nav && !document.querySelector('.docs-menu-toggle')) {
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'docs-menu-toggle';
+    toggle.setAttribute('aria-label', 'Open documentation menu');
+    toggle.setAttribute('aria-controls', 'ackit-docs-nav');
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.innerHTML = '<span></span><span></span><span></span>';
+    nav.id = 'ackit-docs-nav';
+
+    const backdrop = document.createElement('button');
+    backdrop.type = 'button';
+    backdrop.className = 'docs-menu-backdrop';
+    backdrop.setAttribute('aria-label', 'Close documentation menu');
+    document.body.append(backdrop);
+
+    const githubButton = headerInner.querySelector(':scope > .button');
+    headerInner.insertBefore(toggle, githubButton ?? null);
+
+    const setMenu = (open) => {
+      document.body.classList.toggle('docs-menu-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? 'Close documentation menu' : 'Open documentation menu');
+    };
+
+    toggle.addEventListener('click', () => setMenu(!document.body.classList.contains('docs-menu-open')));
+    backdrop.addEventListener('click', () => setMenu(false));
+    nav.addEventListener('click', (event) => {
+      if (event.target.closest('a') && matchMedia('(max-width: 980px)').matches) setMenu(false);
+    });
+    addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') setMenu(false);
+    });
+    addEventListener('resize', () => {
+      if (innerWidth > 980) setMenu(false);
+    }, { passive: true });
   }
 
   for (const pre of document.querySelectorAll('.docs-article pre')) {
@@ -94,6 +151,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const active = document.querySelector('.docs-nav a.active');
   if (active && matchMedia('(max-width: 980px)').matches) {
-    active.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+    active.scrollIntoView({ block: 'nearest' });
   }
 });
