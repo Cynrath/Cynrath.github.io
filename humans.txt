@@ -1,0 +1,16 @@
+/* TEAM */
+Developer: Cynrath
+Site: https://cynrath.github.io/
+GitHub: https://github.com/Cynrath
+
+/* PROJECT */
+Featured: AgentContextKit / ACKit
+Repository: https://github.com/Cynrath/agent-context-kit
+Documentation: https://cynrath.github.io/agent-context-kit/
+Stack: TypeScript, Node.js, .NET, C#, MSSQL, EF Core, Docker, Linux, Cloudflare
+
+/* SITE */
+Language: English
+Deployment: GitHub Pages, main branch, root
+Runtime: Static HTML/CSS/JS
+Analytics: None
