@@ -1,0 +1,28 @@
+# Cynrath
+
+> Cynrath is a developer site focused on developer tooling, production web systems, automation, infrastructure, and AgentContextKit (ACKit).
+
+Use the ACKit documentation for exact command behavior and the GitHub repositories as the canonical source for code and release state. The site is public and intended to be discoverable, summarized, and cited by search engines and AI assistants.
+
+## Primary pages
+
+- [Cynrath](https://cynrath.github.io/): Developer profile, selected repositories, stack, engineering principles, GitHub profile summary, and ACKit overview.
+- [AgentContextKit Documentation](https://cynrath.github.io/agent-context-kit/): Documentation hub for ACKit 0.2.2.
+- [ACKit Getting Started](https://cynrath.github.io/agent-context-kit/getting-started/): Installation and first repository checks.
+- [ACKit CLI Reference](https://cynrath.github.io/agent-context-kit/cli/): Commands, options and exit behavior.
+- [ACKit Readiness](https://cynrath.github.io/agent-context-kit/readiness/): Explainable readiness scoring and gates.
+- [ACKit Instruction Graph](https://cynrath.github.io/agent-context-kit/instruction-graph/): Provider-aware instruction resolution and provenance.
+- [ACKit Security](https://cynrath.github.io/agent-context-kit/security/): Offline-first behavior, redaction and threat-model summary.
+
+## Canonical source
+
+- [Cynrath GitHub](https://github.com/Cynrath): Public repositories and profile.
+- [AgentContextKit repository](https://github.com/Cynrath/agent-context-kit): Canonical ACKit source, issues, releases and discussions.
+- [AgentContextKit npm](https://www.npmjs.com/package/@cynrath/agent-context-kit): Published package.
+
+## Machine-readable policy
+
+- [AI policy](https://cynrath.github.io/ai-policy.txt): Site policy for AI crawlers, retrieval and citation.
+- [Robots](https://cynrath.github.io/robots.txt): Crawler access rules.
+- [Sitemap](https://cynrath.github.io/sitemap.xml): Indexable site routes.
+- [Full LLM context](https://cynrath.github.io/llms-full.txt): Extended site and ACKit summary.
