@@ -1,31 +1,29 @@
 # AgentContextKit
 
-> AgentContextKit (ACKit) 0.2.2 is an offline-first deterministic toolkit for turning repositories into agent-ready working environments.
-
-Use the documentation for exact CLI behavior, readiness, instruction resolution, security and integrations. Canonical product source is the GitHub repository.
+> AgentContextKit (ACKit) 0.3.0 is an offline-first deterministic toolkit for turning repositories into agent-ready working environments.
 
 ## Documentation
 
 - [AgentContextKit](https://cynrath.github.io/agent-context-kit/): Offline-first deterministic toolkit for agent-ready repositories.
 - [Getting Started](https://cynrath.github.io/agent-context-kit/getting-started/): Install and initialize AgentContextKit.
 - [CLI Reference](https://cynrath.github.io/agent-context-kit/cli/): ACKit commands, options and exit behavior.
-- [Readiness](https://cynrath.github.io/agent-context-kit/readiness/): Explainable repository readiness scoring.
+- [Readiness](https://cynrath.github.io/agent-context-kit/readiness/): Explainable ACKit repository readiness scoring.
 - [Optimize](https://cynrath.github.io/agent-context-kit/optimize/): Instruction and context hygiene advisor.
-- [Provider Profiles](https://cynrath.github.io/agent-context-kit/profiles/): Provider-aware context profiles.
+- [Provider Profiles](https://cynrath.github.io/agent-context-kit/profiles/): Provider-aware context profiles for coding agents.
 - [Instruction Graph](https://cynrath.github.io/agent-context-kit/instruction-graph/): Resolve nested agent instructions with provenance and precedence.
 - [Rule Packs](https://cynrath.github.io/agent-context-kit/rule-packs/): Declarative offline repository policy checks.
-- [GitHub Action](https://cynrath.github.io/agent-context-kit/github-action/): Run ACKit checks in GitHub Actions.
-- [MCP](https://cynrath.github.io/agent-context-kit/mcp/): Local Model Context Protocol integration.
-- [SDK](https://cynrath.github.io/agent-context-kit/sdk/): Programmatic repository analysis.
-- [Dashboard](https://cynrath.github.io/agent-context-kit/dashboard/): Local dashboard and repository views.
-- [Diagnostics](https://cynrath.github.io/agent-context-kit/diagnostics/): Environment and support diagnostics.
-- [VS Code](https://cynrath.github.io/agent-context-kit/vscode/): AgentContextKit VS Code integration.
-- [Security](https://cynrath.github.io/agent-context-kit/security/): Offline-first threat model and redaction guarantees.
-- [Benchmarks](https://cynrath.github.io/agent-context-kit/benchmarks/): Deterministic performance benchmarks.
-- [Migration](https://cynrath.github.io/agent-context-kit/migration/): Upgrade to the current release.
+- [GitHub Action](https://cynrath.github.io/agent-context-kit/github-action/): Run ACKit repository checks in GitHub Actions.
+- [MCP](https://cynrath.github.io/agent-context-kit/mcp/): Local Model Context Protocol integration for ACKit.
+- [SDK](https://cynrath.github.io/agent-context-kit/sdk/): Programmatic ACKit repository analysis.
+- [Dashboard](https://cynrath.github.io/agent-context-kit/dashboard/): Local ACKit dashboard and live repository views.
+- [Diagnostics](https://cynrath.github.io/agent-context-kit/diagnostics/): ACKit environment and support diagnostics.
+- [VS Code](https://cynrath.github.io/agent-context-kit/vscode/): AgentContextKit VS Code extension.
+- [Security](https://cynrath.github.io/agent-context-kit/security/): ACKit offline-first threat model and redaction guarantees.
+- [Benchmarks](https://cynrath.github.io/agent-context-kit/benchmarks/): Deterministic ACKit performance benchmarks.
+- [Migration](https://cynrath.github.io/agent-context-kit/migration/): Upgrade AgentContextKit to the current release.
 
 ## Source and package
 
-- [GitHub](https://github.com/Cynrath/agent-context-kit): canonical source, issues, releases and discussions.
-- [npm](https://www.npmjs.com/package/@cynrath/agent-context-kit): package @cynrath/agent-context-kit.
-- [Cynrath](https://cynrath.github.io/): developer site and project overview.
+- [GitHub](https://github.com/Cynrath/agent-context-kit)
+- [npm](https://www.npmjs.com/package/@cynrath/agent-context-kit)
+- [Cynrath](https://cynrath.github.io/)
