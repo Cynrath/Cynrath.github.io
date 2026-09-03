@@ -53,3 +53,11 @@ GitHub Pages serves the site from the repository's configured source.
 - Keep the site lightweight and framework-free unless there is a clear reason to change that architecture.
 - Keep product implementation documentation in the relevant product repository.
 - Do not add private client data, credentials, private infrastructure details, or unnecessary personal contact information.
+
+## Branch governance
+
+- `main` changes land via pull request with exact-head `docs-integrity` green
+  (`node scripts/verify-site.mjs` + `git diff --check`); direct `main` pushes
+  are no longer the normal workflow.
+- Hosted-doc release flow: run the generator locally, push a branch, open a PR,
+  wait for `docs-integrity`, then merge with linear history.
