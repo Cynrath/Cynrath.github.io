@@ -2,74 +2,114 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://cynrath.github.io/</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-09-03</lastmod>
   </url>
   <url>
     <loc>https://cynrath.github.io/agent-context-kit/</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-09-03</lastmod>
   </url>
   <url>
     <loc>https://cynrath.github.io/agent-context-kit/benchmarks/</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-09-03</lastmod>
+  </url>
+  <url>
+    <loc>https://cynrath.github.io/agent-context-kit/checkpoints/</loc>
+    <lastmod>2026-09-03</lastmod>
   </url>
   <url>
     <loc>https://cynrath.github.io/agent-context-kit/cli/</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-09-03</lastmod>
   </url>
   <url>
     <loc>https://cynrath.github.io/agent-context-kit/dashboard/</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-09-03</lastmod>
   </url>
   <url>
     <loc>https://cynrath.github.io/agent-context-kit/diagnostics/</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-09-03</lastmod>
+  </url>
+  <url>
+    <loc>https://cynrath.github.io/agent-context-kit/drift/</loc>
+    <lastmod>2026-09-03</lastmod>
+  </url>
+  <url>
+    <loc>https://cynrath.github.io/agent-context-kit/evidence/</loc>
+    <lastmod>2026-09-03</lastmod>
   </url>
   <url>
     <loc>https://cynrath.github.io/agent-context-kit/getting-started/</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-09-03</lastmod>
   </url>
   <url>
     <loc>https://cynrath.github.io/agent-context-kit/github-action/</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-09-03</lastmod>
   </url>
   <url>
     <loc>https://cynrath.github.io/agent-context-kit/instruction-graph/</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-09-03</lastmod>
+  </url>
+  <url>
+    <loc>https://cynrath.github.io/agent-context-kit/intent/</loc>
+    <lastmod>2026-09-03</lastmod>
   </url>
   <url>
     <loc>https://cynrath.github.io/agent-context-kit/mcp/</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-09-03</lastmod>
   </url>
   <url>
     <loc>https://cynrath.github.io/agent-context-kit/migration/</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-09-03</lastmod>
   </url>
   <url>
     <loc>https://cynrath.github.io/agent-context-kit/optimize/</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-09-03</lastmod>
+  </url>
+  <url>
+    <loc>https://cynrath.github.io/agent-context-kit/policy/</loc>
+    <lastmod>2026-09-03</lastmod>
   </url>
   <url>
     <loc>https://cynrath.github.io/agent-context-kit/profiles/</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-09-03</lastmod>
   </url>
   <url>
     <loc>https://cynrath.github.io/agent-context-kit/readiness/</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-09-03</lastmod>
+  </url>
+  <url>
+    <loc>https://cynrath.github.io/agent-context-kit/roles/</loc>
+    <lastmod>2026-09-03</lastmod>
   </url>
   <url>
     <loc>https://cynrath.github.io/agent-context-kit/rule-packs/</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-09-03</lastmod>
   </url>
   <url>
     <loc>https://cynrath.github.io/agent-context-kit/sdk/</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-09-03</lastmod>
   </url>
   <url>
     <loc>https://cynrath.github.io/agent-context-kit/security/</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-09-03</lastmod>
+  </url>
+  <url>
+    <loc>https://cynrath.github.io/agent-context-kit/skills/</loc>
+    <lastmod>2026-09-03</lastmod>
+  </url>
+  <url>
+    <loc>https://cynrath.github.io/agent-context-kit/sync/</loc>
+    <lastmod>2026-09-03</lastmod>
+  </url>
+  <url>
+    <loc>https://cynrath.github.io/agent-context-kit/verification/</loc>
+    <lastmod>2026-09-03</lastmod>
   </url>
   <url>
     <loc>https://cynrath.github.io/agent-context-kit/vscode/</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-09-03</lastmod>
+  </url>
+  <url>
+    <loc>https://cynrath.github.io/agent-context-kit/workflows/</loc>
+    <lastmod>2026-09-03</lastmod>
   </url>
 </urlset>

@@ -1,6 +1,6 @@
 # AgentContextKit
 
-> AgentContextKit (ACKit) 0.3.0 is an offline-first deterministic toolkit for turning repositories into agent-ready working environments.
+> AgentContextKit (ACKit) 0.4.0 is an offline-first deterministic toolkit for turning repositories into agent-ready working environments.
 
 ## Documentation
 
@@ -12,6 +12,16 @@
 - [Provider Profiles](https://cynrath.github.io/agent-context-kit/profiles/): Provider-aware context profiles for coding agents.
 - [Instruction Graph](https://cynrath.github.io/agent-context-kit/instruction-graph/): Resolve nested agent instructions with provenance and precedence.
 - [Rule Packs](https://cynrath.github.io/agent-context-kit/rule-packs/): Declarative offline repository policy checks.
+- [Workflows](https://cynrath.github.io/agent-context-kit/workflows/): Staged ACKit workflow lifecycles with deterministic gates.
+- [Intent](https://cynrath.github.io/agent-context-kit/intent/): Committed intent documents with fingerprints.
+- [Checkpoints](https://cynrath.github.io/agent-context-kit/checkpoints/): Resumable checkpoints with handoff packs.
+- [Evidence](https://cynrath.github.io/agent-context-kit/evidence/): Acceptance criteria linked to typed proof.
+- [Verification](https://cynrath.github.io/agent-context-kit/verification/): Independent verification bundles and verdicts.
+- [Drift](https://cynrath.github.io/agent-context-kit/drift/): Deterministic workflow drift detection.
+- [Policy](https://cynrath.github.io/agent-context-kit/policy/): Risk-tiered autonomy and review policy.
+- [Roles](https://cynrath.github.io/agent-context-kit/roles/): Portable data-only agent role contracts.
+- [Skills](https://cynrath.github.io/agent-context-kit/skills/): Open-standard agent skills management.
+- [Managed Sync](https://cynrath.github.io/agent-context-kit/sync/): Reconcile ACKit-owned managed assets after upgrades.
 - [GitHub Action](https://cynrath.github.io/agent-context-kit/github-action/): Run ACKit repository checks in GitHub Actions.
 - [MCP](https://cynrath.github.io/agent-context-kit/mcp/): Local Model Context Protocol integration for ACKit.
 - [SDK](https://cynrath.github.io/agent-context-kit/sdk/): Programmatic ACKit repository analysis.
