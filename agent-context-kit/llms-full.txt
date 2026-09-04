@@ -398,7 +398,7 @@ This project follows Semantic Versioning.
 
 ## [0.4.1] - 2026-09-04
 
-Patch release from the v.0.4.1 maintenance line (no minor features; current
+Patch release from the v0.4.1 maintenance line (no minor features; current
 master-only additions such as `task archive --completed` and
 `TASK-COMPLETED-IN-ACTIVE` are intentionally excluded and remain targeted at
 a future minor). The Browser Companion experiment remains paused on its
@@ -484,7 +484,7 @@ separate branch and is **not** part of this release.
   `tests/contract/version-parity.test.ts`): deterministic classifier that
   distinguishes CURRENT-facing from HISTORICAL version references and verifies
   `package.json` == extension manifest == README/docs current truth; it never
-  fails on legitimate history (`docs/v.0.4.1/**`, CHANGELOG history, task
+  fails on legitimate history (`docs/v0.4.1/**`, CHANGELOG history, task
   records, behavioral baseline pins, API since-notes, protocol generations).
 
 ### Changed
@@ -492,7 +492,7 @@ separate branch and is **not** part of this release.
 - **Agent instruction truth is version-agnostic**: `AGENTS.md` no longer
   hard-codes a release number (`package.json` is authoritative for the
   checkout, the latest immutable release for published stable); `CLAUDE.md` and
-  `.github/copilot-instructions.md` are thin shims to it. `docs/v.0.4.1/**` is
+  `.github/copilot-instructions.md` are thin shims to it. `docs/v0.4.1/**` is
   marked historical; current behavior contracts are `docs/reference/`,
   `docs/concepts/`, `docs/guides/`, `docs/architecture/`. Canonical branch
   policy now states the enforced truth: changes land via pull request with
@@ -602,7 +602,7 @@ Maintenance and launch-sync release — offline guarantee, distribution hardenin
 
 ### Changed
 
-- `README.md` polished badges/links 0.2.0→0.2.1 (npm, release, npx, Action, VS Code, versioning) while preserving table/responsive design; `docs/v.0.4.1` historical path unchanged.
+- `README.md` polished badges/links 0.2.0→0.2.1 (npm, release, npx, Action, VS Code, versioning) while preserving table/responsive design; `docs/v0.4.1` historical path unchanged.
 - `.github/workflows/release.yml` fresh isolated consumer: mktemp + unique `npm_config_cache`, `npm install --prefix` + `ackit --version`/`--help` checks, 6× bounded retry, no global mutation, secondary `npx` best-effort, version-neutral release notes.
 - `extensions/vscode/package.json` 0.2.1 (repository/homepage/bugs/license/icon/keywords, README/CHANGELOG/.vscodeignore).
 
@@ -750,7 +750,7 @@ PROJECT-CONTROL-0107 planning commit `c249a13` opens with the post-0158 state sy
 
 ### Release
 - Published `AgentContextKit` `0.2.0-alpha.3` to NuGet through the OIDC release workflow sequence.
-- Created exact tag `v.0.4.1-alpha.3` and GitHub prerelease targeting `92984c6448332aa24b7cff94647f627bf944e535`.
+- Created exact tag `v0.4.1-alpha.3` and GitHub prerelease targeting `92984c6448332aa24b7cff94647f627bf944e535`.
 - Verified global tool install from NuGet; `ackit version` reports `AgentContextKit 0.2.0-alpha.3`.
 - Recorded refreshed hosted RC evidence run `27870246504` and immutable release verification run `27870813763`.
 - Known follow-up: harden the release workflow provenance probe before the next publish so missing attestation state does not fail before attestation can run.
@@ -781,7 +781,7 @@ PROJECT-CONTROL-0107 planning commit `c249a13` opens with the post-0158 state sy
 - Config diagnostics reject unmatched quotes with sanitized `ACKITCFG006` output.
 - Suppression audit records are deduplicated before human/JSON reporting.
 - Polished README installed-tool and source command examples.
-- Froze a compatibility-preserving `v.0.4.1-alpha.2` hardening scope without changing version metadata.
+- Froze a compatibility-preserving `v0.4.1-alpha.2` hardening scope without changing version metadata.
 - Reclassified historical v1.0 asset checks and added an explicit P0/P1/P2 1.0 readiness gap register.
 - Migrated the test project from Legacy `xunit` `2.9.3` to xUnit v3 while preserving all 169 tests and clean dependency reviews.
 - Added a conditional release-candidate contract freeze and explicit maintainer GO/NO-GO decision package without changing version or publishing.
@@ -806,7 +806,7 @@ PROJECT-CONTROL-0107 planning commit `c249a13` opens with the post-0158 state sy
 
 ### Release
 - Published `AgentContextKit` `0.2.0-alpha.2` to NuGet through GitHub OIDC Trusted Publishing.
-- Created exact tag `v.0.4.1-alpha.2` at `f540479a92cbe66097f6796553828ee49ddd5512` and published the GitHub pre-release with validated package assets.
+- Created exact tag `v0.4.1-alpha.2` at `f540479a92cbe66097f6796553828ee49ddd5512` and published the GitHub pre-release with validated package assets.
 
 ## [0.2.0-alpha.1] - 2026-06-11
 ### Added
@@ -831,7 +831,7 @@ PROJECT-CONTROL-0107 planning commit `c249a13` opens with the post-0158 state sy
 - Published NuGet `0.2.0-alpha.1` now includes `ackit sarif`.
 - JSON finding objects now include additive `ruleId` metadata.
 - SARIF rule metadata now uses the centralized scanner rule catalog.
-- Scanner documentation and security model are updated for v.0.4.1-alpha.
+- Scanner documentation and security model are updated for v0.4.1-alpha.
 
 ### Security
 - Critical findings cannot be silently suppressed by config allowlist.
