@@ -7,7 +7,7 @@ Use the ACKit documentation for exact command behavior and the GitHub repositori
 ## Primary pages
 
 - [Cynrath](https://cynrath.github.io/): Developer profile, selected repositories, stack, engineering principles, GitHub profile summary, and ACKit overview.
-- [AgentContextKit Documentation](https://cynrath.github.io/agent-context-kit/): Documentation hub for ACKit 0.2.2.
+- [AgentContextKit Documentation](https://cynrath.github.io/agent-context-kit/): Documentation hub for ACKit 0.4.1.
 - [ACKit Getting Started](https://cynrath.github.io/agent-context-kit/getting-started/): Installation and first repository checks.
 - [ACKit CLI Reference](https://cynrath.github.io/agent-context-kit/cli/): Commands, options and exit behavior.
 - [ACKit Readiness](https://cynrath.github.io/agent-context-kit/readiness/): Explainable readiness scoring and gates.
