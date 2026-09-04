@@ -1,6 +1,6 @@
 # AgentContextKit
 
-> AgentContextKit (ACKit) 0.4.0 is an offline-first deterministic toolkit for turning repositories into agent-ready working environments.
+> AgentContextKit (ACKit) 0.4.1 is an offline-first deterministic toolkit for turning repositories into agent-ready working environments.
 
 ## Documentation
 
