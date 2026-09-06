@@ -14,9 +14,10 @@
 - [Rule Packs](https://cynrath.github.io/agent-context-kit/rule-packs/): Declarative offline repository policy checks.
 - [Workflows](https://cynrath.github.io/agent-context-kit/workflows/): Staged ACKit workflow lifecycles with deterministic gates.
 - [Intent](https://cynrath.github.io/agent-context-kit/intent/): Committed intent documents with fingerprints.
-- [Checkpoints](https://cynrath.github.io/agent-context-kit/checkpoints/): Resumable checkpoints with handoff packs.
+- [Checkpoints](https://cynrath.github.io/agent-context-kit/checkpoints/): Resumable checkpoints with verification-bound portable handoff.
 - [Evidence](https://cynrath.github.io/agent-context-kit/evidence/): Acceptance criteria linked to typed proof.
-- [Verification](https://cynrath.github.io/agent-context-kit/verification/): Independent verification bundles and verdicts.
+- [Verification](https://cynrath.github.io/agent-context-kit/verification/): State-bound verification bundles and independent verdicts.
+- [Status](https://cynrath.github.io/agent-context-kit/status/): Canonical read-only task status with blockers and next actions.
 - [Drift](https://cynrath.github.io/agent-context-kit/drift/): Deterministic workflow drift detection.
 - [Policy](https://cynrath.github.io/agent-context-kit/policy/): Risk-tiered autonomy and review policy.
 - [Roles](https://cynrath.github.io/agent-context-kit/roles/): Portable data-only agent role contracts.
@@ -25,6 +26,8 @@
 - [GitHub Action](https://cynrath.github.io/agent-context-kit/github-action/): Run ACKit repository checks in GitHub Actions.
 - [MCP](https://cynrath.github.io/agent-context-kit/mcp/): Local Model Context Protocol integration for ACKit.
 - [SDK](https://cynrath.github.io/agent-context-kit/sdk/): Programmatic ACKit repository analysis.
+- [Provider Surfaces](https://cynrath.github.io/agent-context-kit/provider-surfaces/): Canonical provider-surface mapping with CLI, SDK, MCP, Action and VS Code parity.
+- [Trust Flow](https://cynrath.github.io/agent-context-kit/trust-flow/): Reproducible verification-bound trust flow from evidence to resume.
 - [Dashboard](https://cynrath.github.io/agent-context-kit/dashboard/): Local ACKit dashboard and live repository views.
 - [Diagnostics](https://cynrath.github.io/agent-context-kit/diagnostics/): ACKit environment and support diagnostics.
 - [VS Code](https://cynrath.github.io/agent-context-kit/vscode/): AgentContextKit VS Code extension.

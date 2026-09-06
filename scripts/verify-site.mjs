@@ -279,6 +279,71 @@ async function main() {
     }
   }
 
+  // 12. Root CURRENT surfaces track the generated docs version (derived, never pinned here).
+  const docsVersion = [...foundVersions.keys()][0];
+  if (docsVersion !== undefined) {
+    const rootHtml = await fsp.readFile(path.join(siteRoot, "index.html"), "utf8").catch(() => null);
+    if (rootHtml === null) {
+      fail("root index.html is missing");
+    } else {
+      for (const match of rootHtml.matchAll(/"softwareVersion":"(\d+\.\d+\.\d+)"/g)) {
+        if (match[1] !== docsVersion) {
+          fail(`root JSON-LD softwareVersion ${match[1]} != generated docs version ${docsVersion}`);
+        }
+      }
+      if (!rootHtml.includes(`"softwareVersion":"${docsVersion}"`)) {
+        fail(`root JSON-LD softwareVersion != generated docs version ${docsVersion}`);
+      }
+      for (const match of rootHtml.matchAll(/@cynrath\/agent-context-kit@(\d+\.\d+\.\d+)/g)) {
+        if (match[1] !== docsVersion) {
+          fail(`root install pin @${match[1]} != generated docs version ${docsVersion}`);
+        }
+      }
+      if (!rootHtml.includes(`@cynrath/agent-context-kit@${docsVersion}`)) {
+        fail(`root install pin != generated docs version ${docsVersion}`);
+      }
+      let rootVersionHits = 0;
+      for (const match of rootHtml.matchAll(/>v(\d+\.\d+\.\d+)</g)) {
+        rootVersionHits += 1;
+        if (match[1] !== docsVersion) {
+          fail(`root displayed version v${match[1]} != generated docs version ${docsVersion}`);
+        }
+      }
+      if (rootVersionHits === 0) fail("root index.html has no displayed vX.Y.Z version");
+    }
+  }
+
+  // 13. v0.5+ public docs expose the required capability markers.
+  async function requireMarker(file, markers) {
+    const absolute = path.join(docsRoot, file);
+    const text = await fsp.readFile(absolute, "utf8").catch(() => null);
+    if (text === null) {
+      fail(`${posix(absolute)} is missing`);
+      return;
+    }
+    for (const marker of markers) {
+      if (!text.includes(marker)) fail(`${posix(absolute)}: missing marker ${marker}`);
+    }
+  }
+  await requireMarker("cli/index.html", ["ackit status", "checkpoint import"]);
+  await requireMarker("verification/index.html", [
+    "verification-bundle.v2",
+    "reviewedBundleDigest",
+    "VERDICT-INDEPENDENCE-UNPROVEN",
+  ]);
+  await requireMarker("checkpoints/index.html", ["ackit.handoff.v2", "checkpoint import"]);
+  for (const page of ["status/index.html", "provider-surfaces/index.html", "trust-flow/index.html"]) {
+    if (!(await existsFile(path.join(docsRoot, page)))) fail(`agent-context-kit/${page} is missing`);
+  }
+  const llmsTxt = await fsp.readFile(path.join(docsRoot, "llms.txt"), "utf8").catch(() => null);
+  if (llmsTxt === null) {
+    fail("agent-context-kit/llms.txt is missing");
+  } else {
+    for (const link of ["/status/", "/provider-surfaces/", "/trust-flow/"]) {
+      if (!llmsTxt.includes(link)) fail(`agent-context-kit/llms.txt: missing link ${link}`);
+    }
+  }
+
   if (failures.length > 0) {
     for (const failure of failures) process.stdout.write(`FAIL ${failure}\n`);
     process.stdout.write(`docs-integrity: ${failures.length} failure(s)\n`);
