@@ -1,10 +1,10 @@
 # AgentContextKit
 
-> AgentContextKit (ACKit) 0.5.2 is an offline-first deterministic toolkit for turning repositories into agent-ready working environments.
+> AgentContextKit (ACKit) 0.5.3 is an offline-first deterministic toolkit for turning repositories into agent-ready working environments.
 
 ## Documentation
 
-- [AgentContextKit](https://cynrath.github.io/agent-context-kit/): Offline-first deterministic toolkit for agent-ready repositories.
+- [AgentContextKit](https://cynrath.github.io/agent-context-kit/): Agent readiness and repository context toolkit for Codex, Claude Code, Cursor, Copilot, Gemini and MCP-based coding agents. Offline-first, deterministic.
 - [Getting Started](https://cynrath.github.io/agent-context-kit/getting-started/): Install and initialize AgentContextKit.
 - [CLI Reference](https://cynrath.github.io/agent-context-kit/cli/): ACKit commands, options and exit behavior.
 - [Readiness](https://cynrath.github.io/agent-context-kit/readiness/): Explainable ACKit repository readiness scoring.
@@ -34,6 +34,10 @@
 - [Security](https://cynrath.github.io/agent-context-kit/security/): ACKit offline-first threat model and redaction guarantees.
 - [Benchmarks](https://cynrath.github.io/agent-context-kit/benchmarks/): Deterministic ACKit performance benchmarks.
 - [Migration](https://cynrath.github.io/agent-context-kit/migration/): Upgrade AgentContextKit to the current release.
+- [AGENTS.md Validator](https://cynrath.github.io/agent-context-kit/agents-md-validator/): Validate AGENTS.md and CLAUDE.md instructions; find conflicts, duplicates and scope problems.
+- [AI Agent Readiness](https://cynrath.github.io/agent-context-kit/ai-agent-readiness/): Score any repository 0–100 for AI coding-agent readiness with explainable deductions.
+- [Context Optimization](https://cynrath.github.io/agent-context-kit/context-optimization/): Cut wasted agent context: duplicates, oversized files and low-value includes.
+- [MCP Repository Tools](https://cynrath.github.io/agent-context-kit/mcp-repository-tools/): Expose repository context to coding agents over local MCP stdio — read-only.
 
 ## Source and package
 
