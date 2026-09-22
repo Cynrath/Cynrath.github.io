@@ -1,4 +1,4 @@
-# AgentContextKit 0.5.3
+# AgentContextKit 0.5.4
 
 # ACKit — AgentContextKit
 
@@ -189,11 +189,11 @@ OpenCode, Copilot, Gemini, Cursor, Cline, any MCP-capable agent).
 ```bash
 # global (recommended)
 npm install --global @cynrath/agent-context-kit
-ackit --version  # 0.5.3
+ackit --version  # 0.5.2
 
 # one-shot, pinned
-npx --yes @cynrath/agent-context-kit@0.5.3 --version
-npx --yes @cynrath/agent-context-kit@0.5.3 --help
+npx --yes @cynrath/agent-context-kit@0.5.2 --version
+npx --yes @cynrath/agent-context-kit@0.5.2 --help
 
 # from source
 pnpm install --frozen-lockfile && pnpm build
@@ -323,7 +323,7 @@ More: [`docs/architecture/overview.md`](docs/architecture/overview.md)
 
 ### 🤖 GitHub Action
 
-Official `Cynrath/agent-context-kit@v0.5.3` (SHA-pinned for high-assurance):
+Official `Cynrath/agent-context-kit@v0.5.2` (SHA-pinned for high-assurance):
 
 ```yaml
 permissions:
@@ -333,7 +333,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a
-      - uses: Cynrath/agent-context-kit@v0.5.3
+      - uses: Cynrath/agent-context-kit@v0.5.2
         with:
           command: scan
           args: "--json"
@@ -389,7 +389,7 @@ From source:
 
 ```bash
 pnpm --filter vscode build
-vsce package # → ackit-vscode-0.5.3.vsix
+vsce package # → ackit-vscode-0.5.4.vsix
 ```
 
 Features: readiness tree, Problems `ACKITxxx`, graph “instructions for current file”, tasks/policy/optimize, palette `Refresh/Show Graph/Optimize/Diagnostics`, file watcher debounced, no telemetry.
@@ -440,7 +440,7 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the docs-first workflow.
 
 ### 🔖 Versioning
 
-Development: **`0.5.3`** on `master` · Latest stable: **`0.5.3`** · [Changelog](CHANGELOG.md) · [Releases](https://github.com/Cynrath/agent-context-kit/releases/latest) · `latest → 0.5.3` via OIDC Trusted Publishing with provenance. Stable pointer: [`release-state.json`](release-state.json). Legacy `.NET/NuGet 1.0.0-rc.1` at `258918b` is frozen.
+Development: **`0.5.4`** on `master` · Latest stable: **`0.5.2`** · [Changelog](CHANGELOG.md) · [Releases](https://github.com/Cynrath/agent-context-kit/releases/latest) · `latest → 0.5.2` via OIDC Trusted Publishing with provenance. Stable pointer: [`release-state.json`](release-state.json). Legacy `.NET/NuGet 1.0.0-rc.1` at `258918b` is frozen.
 
 ---
 
@@ -462,6 +462,31 @@ MIT — [`LICENSE`](LICENSE)
 All notable changes to ACKit (`@cynrath/agent-context-kit`) are documented in this file.
 
 This project follows Semantic Versioning.
+
+## [0.5.4] - 2026-09-22
+
+Release-recovery patch (no runtime feature behavior beyond 0.5.3; no new
+commands, reporters, or services). Closes the partial 0.5.3 release:
+npm 0.5.3 shipped while Marketplace stayed 0.5.2 because the
+tag-trigger workflow assumed an unpublished `vsce publish --oidc`
+capability (`@vscode/vsce` 4.0.0 has no `--oidc`; verified via
+`publish --help`).
+
+### Fixed
+
+- Release workflow no longer attempts automated `vsce publish --oidc`.
+  A fail-closed manual Marketplace gate verifies
+  `Cynrath.ackit-vscode` live == release version BEFORE npm publish,
+  so npm can never run ahead of Marketplace again (TASK-0094,
+  ADR-0033 amendment; ADR-0023 manual path restored as normal).
+- Contract tests lock the manual-gate reality (`--oidc` absent,
+  `--skipDuplicate` rejected, ordering: marketplace-live gate before
+  npm publish, no automated `vsce publish`).
+- Version coupling preserved: root == extension == tag == release
+  (0.5.4). Stable pins + `publishedStable` stay 0.5.2 until all live
+  surfaces verify, then flip to 0.5.4 in the same release plan.
+- `v0.5.3` preserved untouched as the partial-release marker; 0.5.3
+  history below unchanged.
 
 ## [0.5.3] - 2026-09-22
 
