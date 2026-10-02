@@ -1,18 +1,29 @@
 # Cynrath
 
-> Cynrath is a developer site focused on developer tooling, production web systems, automation, infrastructure, and AgentContextKit (ACKit).
+> Cynrath is a developer site focused on developer tooling, production web systems, automation, infrastructure, AgentContextKit (ACKit), and the ACKit Spec Kit Bridge.
 
 Use the ACKit documentation for exact command behavior and the GitHub repositories as the canonical source for code and release state. The site is public and intended to be discoverable, summarized, and cited by search engines and AI assistants.
 
 ## Primary pages
 
 - [Cynrath](https://cynrath.github.io/): Developer profile, selected repositories, stack, engineering principles, GitHub profile summary, and ACKit overview.
-- [AgentContextKit Documentation](https://cynrath.github.io/agent-context-kit/): Documentation hub for ACKit 0.4.1.
+- [AgentContextKit Documentation](https://cynrath.github.io/agent-context-kit/): Documentation hub for ACKit 0.5.4.
 - [ACKit Getting Started](https://cynrath.github.io/agent-context-kit/getting-started/): Installation and first repository checks.
 - [ACKit CLI Reference](https://cynrath.github.io/agent-context-kit/cli/): Commands, options and exit behavior.
 - [ACKit Readiness](https://cynrath.github.io/agent-context-kit/readiness/): Explainable readiness scoring and gates.
 - [ACKit Instruction Graph](https://cynrath.github.io/agent-context-kit/instruction-graph/): Provider-aware instruction resolution and provenance.
 - [ACKit Security](https://cynrath.github.io/agent-context-kit/security/): Offline-first behavior, redaction and threat-model summary.
+- [ACKit Spec Kit Bridge Documentation](https://cynrath.github.io/ackit-spec-kit-bridge/): Community bridge docs — Spec Kit intent into ACKit verification trust (lifecycle, freshness, gates, handoffs). Not an official GitHub integration.
+- [Bridge CLI](https://cynrath.github.io/ackit-spec-kit-bridge/cli/): `ackit-speckit` commands, exit codes and JSON contracts.
+- [Bridge Verification](https://cynrath.github.io/ackit-spec-kit-bridge/verification/): State-bound verification and freshness model.
+
+## Canonical source
+
+- [Cynrath GitHub](https://github.com/Cynrath): Public repositories and profile.
+- [AgentContextKit repository](https://github.com/Cynrath/agent-context-kit): Canonical ACKit source, issues, releases and discussions.
+- [AgentContextKit npm](https://www.npmjs.com/package/@cynrath/agent-context-kit): Published package.
+- [Bridge repository](https://github.com/Cynrath/ackit-spec-kit-bridge): Canonical bridge source, issues and releases.
+- [Bridge npm](https://www.npmjs.com/package/@cynrath/ackit-spec-kit-bridge): Published bridge package.
 
 ## Canonical source
 

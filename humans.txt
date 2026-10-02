@@ -7,6 +7,9 @@ GitHub: https://github.com/Cynrath
 Featured: AgentContextKit / ACKit
 Repository: https://github.com/Cynrath/agent-context-kit
 Documentation: https://cynrath.github.io/agent-context-kit/
+Integration: ACKit Spec Kit Bridge
+Integration repository: https://github.com/Cynrath/ackit-spec-kit-bridge
+Integration documentation: https://cynrath.github.io/ackit-spec-kit-bridge/
 Stack: TypeScript, Node.js, .NET, C#, MSSQL, EF Core, Docker, Linux, Cloudflare
 
 /* SITE */

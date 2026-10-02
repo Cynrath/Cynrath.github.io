@@ -1,0 +1,28 @@
+# ACKit Spec Kit Bridge
+
+> ACKit Spec Kit Bridge 0.1.1 connects GitHub Spec Kit's intent-driven workflow to ACKit's deterministic task, evidence, verification, freshness, completion-gate, checkpoint, and handoff system. Community integration — not an official GitHub integration.
+
+## Documentation
+
+- [ACKit Spec Kit Bridge](https://cynrath.github.io/ackit-spec-kit-bridge/): GitHub Spec Kit intent → ACKit verification trust. State-bound verification, completion gates, checkpoints and handoffs. Offline-first, deterministic.
+- [Getting Started](https://cynrath.github.io/ackit-spec-kit-bridge/getting-started/): Install the bridge and run the first sync, verification and gate.
+- [CLI Reference](https://cynrath.github.io/ackit-spec-kit-bridge/cli/): ackit-speckit commands, options, exit codes and JSON contracts.
+- [Lifecycle](https://cynrath.github.io/ackit-spec-kit-bridge/lifecycle/): Canonical bridge lifecycle states and derivation.
+- [Verification](https://cynrath.github.io/ackit-spec-kit-bridge/verification/): State-bound verification bundles, digests and freshness.
+- [Verification Profiles](https://cynrath.github.io/ackit-spec-kit-bridge/profiles/): quick, standard and high-risk verification profiles.
+- [Spec Kit Extension](https://cynrath.github.io/ackit-spec-kit-bridge/spec-kit-extension/): Native Spec Kit extension and workflow package.
+- [Configuration](https://cynrath.github.io/ackit-spec-kit-bridge/configuration/): Bridge config file and state layout.
+- [Security](https://cynrath.github.io/ackit-spec-kit-bridge/security/): Offline-first threat model and safety guarantees.
+- [Compatibility](https://cynrath.github.io/ackit-spec-kit-bridge/compatibility/): Tested ACKit, Spec Kit, Node and OS ranges.
+- [Architecture](https://cynrath.github.io/ackit-spec-kit-bridge/architecture/): Adapters, lifecycle mapping and ownership boundaries.
+- [Trust Flow](https://cynrath.github.io/ackit-spec-kit-bridge/trust-flow/): Verify, mutate, stale, re-verify: the freshness guarantee.
+- [Troubleshooting](https://cynrath.github.io/ackit-spec-kit-bridge/troubleshooting/): Diagnose init, sync, verify and gate failures.
+- [Release Model](https://cynrath.github.io/ackit-spec-kit-bridge/release/): Tag-driven OIDC releases with no manual npm approval.
+
+## Source and package
+
+- [GitHub](https://github.com/Cynrath/ackit-spec-kit-bridge)
+- [npm](https://www.npmjs.com/package/@cynrath/ackit-spec-kit-bridge)
+- [AgentContextKit](https://github.com/Cynrath/agent-context-kit)
+- [GitHub Spec Kit](https://github.com/github/spec-kit)
+- [Cynrath](https://cynrath.github.io/)
