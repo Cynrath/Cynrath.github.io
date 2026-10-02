@@ -280,19 +280,19 @@ async function main() {
   }
 
   // 12. Root CURRENT surfaces track the generated docs version (derived, never pinned here).
+  // Scoped to the AgentContextKit JSON-LD entry: the bridge is a second
+  // product with its own version (checked in the bridge section below).
   const docsVersion = [...foundVersions.keys()][0];
   if (docsVersion !== undefined) {
     const rootHtml = await fsp.readFile(path.join(siteRoot, "index.html"), "utf8").catch(() => null);
     if (rootHtml === null) {
       fail("root index.html is missing");
     } else {
-      for (const match of rootHtml.matchAll(/"softwareVersion":"(\d+\.\d+\.\d+)"/g)) {
-        if (match[1] !== docsVersion) {
-          fail(`root JSON-LD softwareVersion ${match[1]} != generated docs version ${docsVersion}`);
-        }
-      }
-      if (!rootHtml.includes(`"softwareVersion":"${docsVersion}"`)) {
-        fail(`root JSON-LD softwareVersion != generated docs version ${docsVersion}`);
+      const ackitEntry = rootHtml.match(/"name":"AgentContextKit"[^}]*"softwareVersion":"(\d+\.\d+\.\d+)"/);
+      if (!ackitEntry) {
+        fail("root JSON-LD has no AgentContextKit softwareVersion entry");
+      } else if (ackitEntry[1] !== docsVersion) {
+        fail(`root JSON-LD AgentContextKit softwareVersion ${ackitEntry[1]} != generated docs version ${docsVersion}`);
       }
       for (const match of rootHtml.matchAll(/@cynrath\/agent-context-kit@(\d+\.\d+\.\d+)/g)) {
         if (match[1] !== docsVersion) {
@@ -344,6 +344,146 @@ async function main() {
     }
   }
 
+  // 14. Bridge docs surface (ackit-spec-kit-bridge/): existence, links,
+  // version agreement, community wording, secrets, and sandbox safety.
+  const bridgeRoot = path.join(siteRoot, "ackit-spec-kit-bridge");
+  const bridgeIndex = path.join(bridgeRoot, "index.html");
+  const bridgeRequired = ["", "getting-started", "cli", "lifecycle", "verification",
+    "profiles", "spec-kit-extension", "configuration", "security", "compatibility",
+    "architecture", "trust-flow", "troubleshooting", "release"];
+  if (!(await existsFile(bridgeIndex))) {
+    fail("ackit-spec-kit-bridge/index.html is missing");
+  }
+  const bridgePages = await collectFiles(bridgeRoot, new Set([".html"]));
+  for (const slug of bridgeRequired) {
+    if (!(await existsFile(path.join(bridgeRoot, slug, "index.html"))) && !(slug === "" && await existsFile(bridgeIndex))) {
+      fail(`ackit-spec-kit-bridge/${slug === "" ? "index.html" : `${slug}/index.html`} is missing`);
+    }
+  }
+  const bridgeVersions = new Map();
+  let bridgeNavCount = 0;
+  const SECRET_PATTERN = /\b(ghp_|gho_|github_pat_|npm_[A-Za-z0-9]{20,}|sk-(live|test)-|AKIA[0-9A-Z]{16})\b/;
+  const LOCALHOST_PATTERN = /https?:\/\/(localhost|127\.0\.0\.1)/i;
+  const WINPATH_PATTERN = /[A-Z]:\\/;
+  for (const page of bridgePages) {
+    const html = await fsp.readFile(page, "utf8");
+    for (const match of html.matchAll(VERSION_PATTERN)) {
+      const version = match[1];
+      if (!bridgeVersions.has(version)) bridgeVersions.set(version, []);
+      bridgeVersions.get(version).push(posix(page));
+    }
+    if (page === bridgeIndex) {
+      const nav = html.match(/<nav[\s\S]*?<\/nav>/);
+      if (!nav) fail("ackit-spec-kit-bridge/index.html has no <nav>");
+      else for (const ref of extractRefs(nav[0])) {
+        if (ref.startsWith("/ackit-spec-kit-bridge/")) bridgeNavCount += 1;
+      }
+    }
+    for (const ref of extractRefs(html)) {
+      const target = resolveRef(ref, page);
+      if (target === null) continue;
+      if ((await resolvePage(target)) === null) {
+        fail(`${posix(page)}: broken internal link ${ref}`);
+      }
+    }
+    const canon = html.match(/<link rel="canonical" href="([^"]+)"\s*\/?>/);
+    if (!canon || !canon[1].startsWith(`${SITE}/ackit-spec-kit-bridge/`)) {
+      fail(`${posix(page)}: canonical link missing or wrong product path`);
+    }
+    if (!html.includes("assets/ackit-docs.css")) fail(`${posix(page)}: missing ackit-docs.css reference`);
+    if (!html.includes("assets/ackit-docs.js")) fail(`${posix(page)}: missing ackit-docs.js reference`);
+    if (!/not an official GitHub integration/i.test(html)) {
+      fail(`${posix(page)}: missing community-integration wording`);
+    }
+    if (STALE_PATTERN.test(html)) fail(`${posix(page)}: stale pre-release wording`);
+    if (SECRET_PATTERN.test(html)) fail(`${posix(page)}: possible secret pattern`);
+    if (LOCALHOST_PATTERN.test(html)) fail(`${posix(page)}: localhost/dev link`);
+    if (WINPATH_PATTERN.test(html)) fail(`${posix(page)}: absolute Windows path`);
+    const hits = scanControls(html);
+    if (hits.length > 0) fail(`${posix(page)}: forbidden control (${hits.join("; ")})`);
+  }
+  if (bridgeNavCount === 0) fail("no /ackit-spec-kit-bridge/ nav targets found in index <nav>");
+  // Every bridge page must carry the current bridge version (derived from
+  // the generated pages, never pinned here). Other triples (compat ranges)
+  // are allowed, so agreement is checked by containment, not exclusivity.
+  // Every bridge page must carry the current bridge version. The version is
+  // derived from the bridge landing page title (never pinned here). Other
+  // triples (compat ranges) are allowed, so agreement is by containment.
+  const bridgeIndexHtml = await fsp.readFile(bridgeIndex, "utf8").catch(() => "");
+  const bridgeTitle = bridgeIndexHtml.match(/<title>[^<]*Bridge (\d+\.\d+\.\d+)<\/title>/);
+  const bridgeVersion = bridgeTitle ? bridgeTitle[1] : undefined;
+  if (bridgeVersion === undefined) {
+    fail("bridge: no version found in landing page title");
+  } else {
+    for (const page of bridgePages) {
+      const html = await fsp.readFile(page, "utf8");
+      if (!html.includes(bridgeVersion)) fail(`${posix(page)}: missing bridge version ${bridgeVersion}`);
+    }
+  }
+  for (const name of ["llms.txt", "llms-full.txt"]) {
+    const stat = await fsp.stat(path.join(bridgeRoot, name)).catch(() => null);
+    if (stat === null || !stat.isFile()) fail(`ackit-spec-kit-bridge/${name} is missing`);
+    else if (stat.size === 0) fail(`ackit-spec-kit-bridge/${name} is empty`);
+  }
+  for (const [rel, markers] of [
+    ["cli/index.html", ["ackit-speckit", "Exit codes"]],
+    ["verification/index.html", ["subjectDigest", "STALE"]],
+    ["security/index.html", ["Offline-first", "shell: false"]],
+  ]) {
+    const text = await fsp.readFile(path.join(bridgeRoot, rel), "utf8").catch(() => null);
+    if (text === null) fail(`ackit-spec-kit-bridge/${rel} is missing`);
+    else for (const marker of markers) {
+      if (!text.includes(marker)) fail(`ackit-spec-kit-bridge/${rel}: missing marker ${marker}`);
+    }
+  }
+  // Sitemap covers every bridge page; root homepage + discovery link to bridge.
+  if (bridgeVersion !== undefined) {
+    const sitemapForBridge = await fsp.readFile(path.join(siteRoot, "sitemap.xml"), "utf8").catch(() => "");
+    for (const page of bridgePages) {
+      const rel = posix(page).replace(/\/index\.html$/, "/").replace(/^ackit-spec-kit-bridge$/, "ackit-spec-kit-bridge/");
+      const url = `${SITE}/${rel === "ackit-spec-kit-bridge/" ? "ackit-spec-kit-bridge/" : rel}`;
+      if (!sitemapForBridge.includes(`<loc>${url}</loc>`)) {
+        fail(`bridge page missing from sitemap: ${posix(page)}`);
+      }
+    }
+    const rootHtmlBridge = await fsp.readFile(path.join(siteRoot, "index.html"), "utf8").catch(() => "");
+    if (!rootHtmlBridge.includes("/ackit-spec-kit-bridge/")) {
+      fail("root index.html does not link to bridge docs");
+    }
+    if (!rootHtmlBridge.includes("https://github.com/Cynrath/ackit-spec-kit-bridge")) {
+      fail("root index.html does not link to bridge GitHub repo");
+    }
+    if (!rootHtmlBridge.includes(`@cynrath/ackit-spec-kit-bridge@${bridgeVersion}`)) {
+      fail(`root bridge install pin != generated bridge version ${bridgeVersion}`);
+    }
+    const bridgeEntry = rootHtmlBridge.match(/"name":"ACKit Spec Kit Bridge"[^}]*"softwareVersion":"(\d+\.\d+\.\d+)"/);
+    if (!bridgeEntry) fail("root JSON-LD has no ACKit Spec Kit Bridge softwareVersion entry");
+    else if (bridgeEntry[1] !== bridgeVersion) {
+      fail(`root JSON-LD bridge softwareVersion ${bridgeEntry[1]} != generated bridge version ${bridgeVersion}`);
+    }
+    const rootLlms = await fsp.readFile(path.join(siteRoot, "llms.txt"), "utf8").catch(() => "");
+    if (!rootLlms.includes("/ackit-spec-kit-bridge/")) fail("root llms.txt does not link bridge docs");
+  }
+  // Bridge generator safety contract intact; ACKit generator preserves bridge URLs.
+  const bridgeSyncRaw = await fsp.readFile(path.join(siteRoot, "scripts", "sync-ackit-spec-kit-bridge-docs.mjs"), "utf8").catch(() => null);
+  if (bridgeSyncRaw === null) {
+    fail("scripts/sync-ackit-spec-kit-bridge-docs.mjs is missing");
+  } else {
+    for (const marker of [
+      "ROOT_WRITE_ALLOWLIST",
+      "refused write outside docs sandbox",
+      "root index protected",
+      "sitemap.xml",
+      "robots.txt",
+    ]) {
+      if (!bridgeSyncRaw.includes(marker)) fail(`bridge generator safety contract marker missing: ${marker}`);
+    }
+  }
+  const ackitSyncRaw = await fsp.readFile(path.join(siteRoot, "scripts", "sync-ackit-docs.mjs"), "utf8").catch(() => null);
+  if (ackitSyncRaw !== null && !ackitSyncRaw.includes("ackit-spec-kit-bridge")) {
+    fail("ACKit generator does not preserve bridge sitemap URLs");
+  }
+
   if (failures.length > 0) {
     for (const failure of failures) process.stdout.write(`FAIL ${failure}\n`);
     process.stdout.write(`docs-integrity: ${failures.length} failure(s)\n`);
@@ -351,7 +491,7 @@ async function main() {
   }
   const version = [...foundVersions.keys()][0];
   process.stdout.write(
-    `docs-integrity: PASS (${pages.length} pages, version ${version}, nav ${navCount} targets)\n`,
+    `docs-integrity: PASS (${pages.length} ACKit pages v${version} + ${bridgePages.length} bridge pages v${bridgeVersion}, nav ${navCount}+${bridgeNavCount} targets)\n`,
   );
   return 0;
 }

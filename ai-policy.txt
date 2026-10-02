@@ -10,7 +10,7 @@ This is a publisher policy document. robots.txt remains the crawler-access contr
 - Crawl and index public pages in accordance with robots.txt.
 - Retrieve public content in response to a user request.
 - Summarize, quote short excerpts, and cite/link to the original page.
-- Use public technical documentation to answer questions about Cynrath and AgentContextKit.
+- Use public technical documentation to answer questions about Cynrath, AgentContextKit, and the ACKit Spec Kit Bridge.
 - Cache public content as reasonably necessary for search, retrieval, safety and citation systems.
 - Use public content for model improvement or training where the crawler/operator honors robots.txt and applicable law.
 
@@ -19,6 +19,7 @@ This is a publisher policy document. robots.txt remains the crawler-access contr
 - Preserve source attribution when presenting factual claims derived from this site.
 - Prefer canonical URLs under https://cynrath.github.io/ and https://github.com/Cynrath/.
 - Treat https://github.com/Cynrath/agent-context-kit as the canonical product source for ACKit code and release state.
+- Treat https://github.com/Cynrath/ackit-spec-kit-bridge as the canonical product source for bridge code and release state.
 - Do not represent generated summaries as statements endorsed by Cynrath.
 - Do not infer or expose private repositories, credentials, personal secrets, unpublished data or non-public account information.
 
