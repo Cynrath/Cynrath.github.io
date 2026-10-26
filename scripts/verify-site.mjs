@@ -484,6 +484,71 @@ async function main() {
     fail("ACKit generator does not preserve bridge sitemap URLs");
   }
 
+
+  // 15. Crawl discovery: sitemap structure and canonical URL coverage, plus robots.
+  const seoXml = await fsp.readFile(path.join(siteRoot, "sitemap.xml"), "utf8");
+  const envelope = seoXml.match(
+    /^<\?xml version="1\.0" encoding="UTF-8"\?>\s*<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">\s*([\s\S]*?)\s*<\/urlset>\s*$/,
+  );
+  if (!envelope) {
+    fail("SEO: sitemap XML declaration or urlset structure is invalid");
+  } else {
+    const entryPattern = /<url>\s*<loc>([^<]+)<\/loc>\s*(?:<lastmod>(\d{4}-\d{2}-\d{2})<\/lastmod>\s*)?<\/url>/g;
+    const entries = [...envelope[1].matchAll(entryPattern)];
+    if (envelope[1].replace(entryPattern, "").trim() !== "") {
+      fail("SEO: sitemap contains malformed or unsupported XML entries");
+    }
+    const found = new Set();
+    const expected = new Set([
+      SITE + "/",
+      ...[...pages, ...bridgePages].map((page) => SITE + "/" + posix(page).replace(/index\.html$/, "")),
+    ]);
+    for (const [, loc, lastmod] of entries) {
+      if (found.has(loc)) fail("SEO: duplicate sitemap URL " + loc);
+      found.add(loc);
+      try {
+        const parsed = new URL(loc);
+        if (parsed.origin !== SITE || parsed.href !== loc || !parsed.pathname.endsWith("/")) {
+          fail("SEO: invalid or non-canonical sitemap URL " + loc);
+        }
+      } catch {
+        fail("SEO: malformed sitemap URL " + loc);
+      }
+      if (lastmod && (!Number.isFinite(Date.parse(lastmod)) || lastmod > new Date().toISOString().slice(0, 10))) {
+        fail("SEO: invalid or future lastmod on " + loc);
+      }
+      if (!expected.has(loc)) fail("SEO: unexpected or stale sitemap URL " + loc);
+    }
+    for (const loc of expected) {
+      if (!found.has(loc)) fail("SEO: published HTML page missing from sitemap " + loc);
+    }
+    for (const page of [path.join(siteRoot, "index.html"), ...pages, ...bridgePages]) {
+      const html = await fsp.readFile(page, "utf8");
+      const canonical = html.match(/<link rel="canonical" href="([^"]+)"\s*\/?>/);
+      const expectedCanonical = page === path.join(siteRoot, "index.html")
+        ? SITE + "/"
+        : SITE + "/" + posix(page).replace(/index\.html$/, "");
+      if (!canonical || canonical[1] !== expectedCanonical) {
+        fail("SEO: canonical mismatch on " + posix(page) + " (expected " + expectedCanonical + ")");
+      }
+      if (/<meta\s+name="robots"\s+content="[^"]*noindex/i.test(html)) {
+        fail("SEO: indexable sitemap page marked noindex: " + posix(page));
+      }
+    }
+  }
+
+  const crawlRobots = await fsp.readFile(path.join(siteRoot, "robots.txt"), "utf8");
+  const sitemapDirectives = [...crawlRobots.matchAll(/^Sitemap:\s*(\S+)\s*$/gm)];
+  if (sitemapDirectives.length !== 1 || sitemapDirectives[0][1] !== SITE + "/sitemap.xml") {
+    fail("SEO: robots.txt must advertise exactly the canonical sitemap URL");
+  }
+  if (!/^User-agent: \*$/m.test(crawlRobots) || !/^Allow: \/$/m.test(crawlRobots)) {
+    fail("SEO: robots.txt must allow general crawling");
+  }
+  if (/^Disallow:\s*\/\s*$/im.test(crawlRobots)) {
+    fail("SEO: robots.txt blocks the entire site");
+  }
+
   if (failures.length > 0) {
     for (const failure of failures) process.stdout.write(`FAIL ${failure}\n`);
     process.stdout.write(`docs-integrity: ${failures.length} failure(s)\n`);
