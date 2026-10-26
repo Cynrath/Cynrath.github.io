@@ -189,13 +189,13 @@ async function main() {
   // Merge sitemap: keep existing non-bridge URLs verbatim (root, ACKit),
   // replace the bridge set with the freshly generated one. Sorted+unique
   // so output is deterministic regardless of generator order.
-  const today = new Date().toISOString().slice(0,10);
+  // Omit lastmod without a verifiable per-page modification timestamp.
   const existing = readSitemapLocs(await readOptional(path.join(siteRoot,'sitemap.xml')));
   const keep = existing.filter(u => u !== `${SITE}/ackit-spec-kit-bridge/` && !u.startsWith(`${SITE}/ackit-spec-kit-bridge/`));
   const bridgeUrls = list.map(p => `${SITE}/ackit-spec-kit-bridge/${p.slug ? `${p.slug}/` : ''}`);
   const urls = [...new Set([...keep, ...bridgeUrls])].sort();
   let sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
-  for (const url of urls) sitemap += `  <url>\n    <loc>${url}</loc>\n    <lastmod>${today}</lastmod>\n  </url>\n`;
+  for (const url of urls) sitemap += `  <url>\n    <loc>${url}</loc>\n  </url>\n`;
   sitemap += '</urlset>\n';
   await write(path.join(siteRoot,'sitemap.xml'), sitemap);
 

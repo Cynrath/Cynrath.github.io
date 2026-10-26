@@ -200,13 +200,13 @@ async function main() {
   // Merge sitemap: keep existing bridge URLs verbatim (owned by
   // scripts/sync-ackit-spec-kit-bridge-docs.mjs) so generator order never
   // drops product pages. Sorted+unique for deterministic output.
-  const today = new Date().toISOString().slice(0,10);
+  // Omit lastmod without a verifiable per-page modification timestamp.
   const existingRaw = await readOptional(path.join(siteRoot,'sitemap.xml'));
   const existingLocs = existingRaw ? [...existingRaw.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]) : [];
   const bridgeLocs = existingLocs.filter(u => u === `${SITE}/ackit-spec-kit-bridge/` || u.startsWith(`${SITE}/ackit-spec-kit-bridge/`));
   const urls = [...new Set([`${SITE}/`, ...list.map(p => `${SITE}/agent-context-kit/${p.slug ? `${p.slug}/` : ''}`), ...bridgeLocs])].sort();
   let sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
-  for (const url of urls) sitemap += `  <url>\n    <loc>${url}</loc>\n    <lastmod>${today}</lastmod>\n  </url>\n`;
+  for (const url of urls) sitemap += `  <url>\n    <loc>${url}</loc>\n  </url>\n`;
   sitemap += '</urlset>\n';
   await write(path.join(siteRoot,'sitemap.xml'), sitemap);
 
