@@ -54,6 +54,23 @@ GitHub Pages serves the site from the repository's configured source.
 - Keep product implementation documentation in the relevant product repository.
 - Do not add private client data, credentials, private infrastructure details, or unnecessary personal contact information.
 
+## Refresh published documentation
+
+Use verified released product checkouts; the generators stay offline and do
+not publish packages. ACKit source version must match its published-stable
+pointer. Bridge compatibility is read from its canonical compatibility document.
+
+```bash
+node scripts/sync-ackit-docs.mjs --source ../agent-context-kit
+node scripts/sync-ackit-spec-kit-bridge-docs.mjs --source ../ackit-spec-kit-bridge
+node scripts/verify-site.mjs
+```
+
+Root `index.html`, `llms.txt` and `llms-full.txt` are maintained separately;
+update their current install/version claims in the same change. The integrity
+gate checks them against generated product versions. Keep historical changelog
+numbers, supported minima, design assets and canonical URLs intact.
+
 ## Branch governance
 
 - `main` changes land via pull request with exact-head `docs-integrity` green
