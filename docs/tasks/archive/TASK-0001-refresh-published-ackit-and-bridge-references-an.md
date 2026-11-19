@@ -1,12 +1,12 @@
 ---
 id: "TASK-0001"
 title: "Refresh published ACKit and bridge references and generated documentation"
-status: active
+status: completed
 schemaVersion: 2
 dependencies:
   []
 createdAt: "2026-11-19"
-completedAt: null
+completedAt: 2026-11-19
 ---
 
 
@@ -48,7 +48,7 @@ the user-authorized bridge 0.1.2 patch, using canonical product sources.
 - [x] Generated pages/compatibility and root discovery/JSON-LD are consistent;
   historical release data and design assets remain correct.
 - [x] Integrity, negative drift, idempotence/safety, ACKit and diff gates pass.
-- [~] Protected PR CI, main integration and public read-back are verified;
+- [x] Protected PR CI, main integration and public read-back are verified;
   evidence accurately records the resulting state.
 
 ## Test steps
@@ -89,9 +89,9 @@ Canonical product sources remain unchanged by this website task.
 
 ## Completion notes
 
-Bridge 0.1.2 publication is now independently verified, so the prepared website
-changes may enter the protected PR flow. Hosted CI/main/public website read-back
-remain to be performed before this task is completed.
+All acceptance criteria are verified, including protected integration and actual
+public read-back. This task archive record follows the same protected process;
+it introduces no further site content or design changes.
 
 - Canonical generators produced 34 ACKit pages (0.5.5) and 14 bridge pages
   (prepared 0.1.2); all 49 URLs, nav/internal links, robots/sitemap checks PASS.
@@ -115,6 +115,18 @@ remain to be performed before this task is completed.
   that data is byte-identical to origin/main and outside this version refresh.
 
 ### Initial planning checkpoint
+
+Final integration proof: PR #17 exact head 0639302 passed required
+docs-integrity before protected squash merge 61b3b6c. The merged tree equals
+the verified source; main is clean/equal to origin/main. Post-merge integrity
+run 44495837955 and configured Pages build/deployment 44495837233 succeeded.
+No deployment was manually dispatched and no hosting/account setting changed.
+
+Public HTTP 200/version checks passed for root, ACKit overview, bridge overview,
+bridge compatibility, root llms.txt and llms-full.txt. Current versions are
+0.5.5/0.1.2; compatibility includes tested 0.5.5/1.4.2. Public sitemap has 49
+canonical URLs. Playwright confirmed the public JSON-LD versions and mobile
+width without horizontal overflow. P001/P002 history is unchanged.
 
 Plan before implementation. Both main checkouts were clean. Site baseline uses
 ACKit 0.5.4 and bridge 0.1.1. ACKit doctor/task doctor pass with zero skills;
