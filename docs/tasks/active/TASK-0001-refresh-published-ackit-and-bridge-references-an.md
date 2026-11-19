@@ -44,11 +44,11 @@ the user-authorized bridge 0.1.2 patch, using canonical product sources.
 
 ## Acceptance criteria
 
-- [~] Current public claims/install pins agree with verified published versions.
+- [x] Current public claims/install pins agree with verified published versions.
 - [x] Generated pages/compatibility and root discovery/JSON-LD are consistent;
   historical release data and design assets remain correct.
 - [x] Integrity, negative drift, idempotence/safety, ACKit and diff gates pass.
-- [ ] Protected PR CI, main integration and public read-back are verified;
+- [~] Protected PR CI, main integration and public read-back are verified;
   evidence accurately records the resulting state.
 
 ## Test steps
@@ -89,8 +89,8 @@ Canonical product sources remain unchanged by this website task.
 
 ## Completion notes
 
-Implementation is prepared locally; no website push advertises bridge 0.1.2
-before TASK-0015 proves its actual publication. Hosted CI/main/public read-back
+Bridge 0.1.2 publication is now independently verified, so the prepared website
+changes may enter the protected PR flow. Hosted CI/main/public website read-back
 remain to be performed before this task is completed.
 
 - Canonical generators produced 34 ACKit pages (0.5.5) and 14 bridge pages
@@ -105,6 +105,14 @@ remain to be performed before this task is completed.
   positive fixture still exit 0. Historical changelog versions remain allowed.
 - Node syntax, ACKit doctor/task doctor/scan CI (93 >= 80), diff checks PASS.
   .ackit runtime state is ignored, not tracked; no initialization or hooks ran.
+- Cross-repository publication prerequisite fulfilled: bridge release run
+  44493452919 succeeded, npm/latest both 0.1.2, fresh installed CLI/SDK and
+  4 signatures/2 attestations verified. GitHub Release has the expected tarball,
+  extension/workflow ZIPs and SHA256SUMS; all checksums match the registry bytes.
+- Playwright desktop 1440px and mobile 390px: current JSON-LD/install versions,
+  semantic h1/main and compatibility rows correct, no document horizontal
+  overflow. One existing homepage inline-image data-URI error was observed;
+  that data is byte-identical to origin/main and outside this version refresh.
 
 ### Initial planning checkpoint
 
