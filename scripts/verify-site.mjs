@@ -463,6 +463,21 @@ async function main() {
     }
     const rootLlms = await fsp.readFile(path.join(siteRoot, "llms.txt"), "utf8").catch(() => "");
     if (!rootLlms.includes("/ackit-spec-kit-bridge/")) fail("root llms.txt does not link bridge docs");
+    if (!rootLlms.includes(`Documentation hub for ACKit ${docsVersion}.`)) {
+      fail(`root llms.txt ACKit current version != ${docsVersion}`);
+    }
+    if (!rootLlms.includes(`Community bridge ${bridgeVersion} docs`)) {
+      fail(`root llms.txt bridge current version != ${bridgeVersion}`);
+    }
+    const rootFull = await fsp.readFile(path.join(siteRoot, "llms-full.txt"), "utf8").catch(() => "");
+    const currentVersions = [...rootFull.matchAll(/^Current documented version: (\d+\.\d+\.\d+)\./gm)]
+      .map(match => match[1]);
+    if (currentVersions.length !== 2 || currentVersions[0] !== docsVersion || currentVersions[1] !== bridgeVersion) {
+      fail(`root llms-full.txt current versions must be ACKit ${docsVersion} and bridge ${bridgeVersion}`);
+    }
+    if (!rootFull.includes(`referring to ACKit ${docsVersion} unless`)) {
+      fail(`root llms-full.txt command interpretation version != ${docsVersion}`);
+    }
   }
   // Bridge generator safety contract intact; ACKit generator preserves bridge URLs.
   const bridgeSyncRaw = await fsp.readFile(path.join(siteRoot, "scripts", "sync-ackit-spec-kit-bridge-docs.mjs"), "utf8").catch(() => null);

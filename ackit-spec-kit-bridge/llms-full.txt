@@ -1,4 +1,4 @@
-# ACKit Spec Kit Bridge 0.1.1
+# ACKit Spec Kit Bridge 0.1.2
 
 # ACKit Spec Kit Bridge
 
@@ -76,7 +76,7 @@ ackit-speckit --help
 Pinned install:
 
 ```powershell
-npm install --global @cynrath/ackit-spec-kit-bridge@0.1.1
+npm install --global @cynrath/ackit-spec-kit-bridge@0.1.2
 ```
 
 POSIX shells work identically (`ackit-speckit doctor`, etc.).
@@ -84,8 +84,8 @@ POSIX shells work identically (`ackit-speckit doctor`, etc.).
 ## Prerequisites
 
 - Node.js >= 22, pnpm 11
-- ACKit CLI (`npm install -g @cynrath/agent-context-kit`, tested 0.5.4, min 0.5.0)
-- Spec Kit `specify` CLI (tested 1.0.13, min 1.0.0; Python 3.11+ via `uv tool install specify-cli`)
+- ACKit CLI (`npm install -g @cynrath/agent-context-kit@latest`, tested 0.5.5, min 0.5.0)
+- Spec Kit `specify` CLI (tested 1.4.2, min 1.0.0; Python 3.11+ via `uv tool install specify-cli`)
 - Git, PowerShell 7+ on Windows
 
 `ackit-speckit doctor` checks every prerequisite with stable check IDs and reports `ok`/`fail` per check.
@@ -242,7 +242,7 @@ ackit-speckit verify --profile high-risk
 Native extension (`spec-kit/extension`, id `ackit`):
 
 ```powershell
-specify extension add ackit --dev ./spec-kit/extension
+specify extension add --dev ./spec-kit/extension
 specify extension list
 specify artifact list --json
 ```
@@ -311,13 +311,13 @@ Gate failures exit 1 and fail the pipeline. See [`docs/guides/ci.md`](docs/guide
 
 | Component | Supported / tested |
 |---|---|
-| Node | >= 22 (tested 24.13.0) |
+| Node | >= 22 (22/24 in CI; 26.13.1 locally) |
 | pnpm | 11.22.0 |
-| ACKit | >= 0.5.0 (tested 0.5.4) |
-| Spec Kit (`specify`) | >= 1.0.0 (tested 1.0.13) |
+| ACKit | >= 0.5.0 (tested 0.5.5) |
+| Spec Kit (`specify`) | >= 1.0.0 (tested 1.4.2) |
 | Windows | supported (PowerShell 7+) |
 | Linux (Ubuntu) | supported (CI) |
-| macOS | best-effort (not tested in v0.1.1) |
+| macOS | best-effort (no macOS CI claim) |
 
 Bridge versioning is independent from ACKit and Spec Kit versions (semver). `doctor` reports live compatibility. See [`docs/reference/compatibility.md`](docs/reference/compatibility.md).
 
@@ -326,6 +326,8 @@ Bridge versioning is independent from ACKit and Spec Kit versions (semver). `doc
 - Bridge docs: <https://cynrath.github.io/ackit-spec-kit-bridge/>
 - ACKit docs: <https://cynrath.github.io/agent-context-kit/>
 - Cynrath home: <https://cynrath.github.io/>
+
+**Context7 / Docs7:** The repository now includes [`context7.json`](context7.json) for maintained documentation indexing and [`docs/docs.json`](docs/docs.json) for optional Docs7 hosting. See the [Context7, Docs7 and verification guide](docs/guides/context7-docs7.md). The existing GitHub Pages site stays active.
 
 ## Development
 
@@ -379,6 +381,42 @@ MIT — see [`LICENSE`](LICENSE).
 
 All notable changes to `@cynrath/ackit-spec-kit-bridge` are documented here.
 This project follows Semantic Versioning.
+
+## [Unreleased]
+
+## [0.1.2] - 2026-11-19
+
+Compatible maintenance update; public schema IDs, supported minima and the
+state-bound lifecycle/completion gates remain unchanged.
+
+### Changed
+
+- Current compatibility metadata and documentation cover ACKit 0.5.5 and Spec
+  Kit 1.4.2; CI follows latest upstream CLIs rather than pinning those snapshots.
+- Package, CLI and native extension/workflow versions are coupled to 0.1.2.
+- Release notes capture actual installed upstream versions. Registry/GitHub
+  lookup failures no longer authorize publication/resume, and npm publish-time
+  processing has a bounded 30-minute verification window.
+- Release demonstration transcripts use the package version, preserving the
+  immutable v0.1.0 transcript instead of overwriting it.
+- Transcript redaction also handles JSON-escaped paths from upstream CLI output.
+- Doctor human/JSON output uses portable repository/config labels instead of
+  disclosing machine-specific absolute paths; its schema and exit codes remain.
+
+### Security
+
+- Updated compatible Zod to 4.6.7, addressing GHSA-mrhx-c7xc-m3w5 in the
+  previously locked 4.6.5 dependency.
+- Applied the Vitest 4.1.12 security backport and provided patched Vite 8.3.3
+  as its development peer, clearing the existing full-audit CI gate while
+  preserving its threshold and the supported major versions.
+
+### Added
+
+- Context7 repository indexing metadata and optional Docs7 Free documentation
+  configuration, plus owner claiming and verification guidance. Existing
+  runtime behavior and existing GitHub Pages hosting remain unchanged by those
+  documentation additions.
 
 ## [0.1.1] - 2026-10-02
 

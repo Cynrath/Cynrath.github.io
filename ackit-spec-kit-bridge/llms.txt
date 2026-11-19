@@ -1,6 +1,6 @@
 # ACKit Spec Kit Bridge
 
-> ACKit Spec Kit Bridge 0.1.1 connects GitHub Spec Kit's intent-driven workflow to ACKit's deterministic task, evidence, verification, freshness, completion-gate, checkpoint, and handoff system. Community integration — not an official GitHub integration.
+> ACKit Spec Kit Bridge 0.1.2 connects GitHub Spec Kit's intent-driven workflow to ACKit's deterministic task, evidence, verification, freshness, completion-gate, checkpoint, and handoff system. Community integration — not an official GitHub integration.
 
 ## Documentation
 

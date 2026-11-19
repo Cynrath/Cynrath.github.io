@@ -1,7 +1,7 @@
 ---
 id: "TASK-0001"
 title: "Refresh published ACKit and bridge references and generated documentation"
-status: pending
+status: active
 schemaVersion: 2
 dependencies:
   []
@@ -44,10 +44,10 @@ the user-authorized bridge 0.1.2 patch, using canonical product sources.
 
 ## Acceptance criteria
 
-- [ ] Current public claims/install pins agree with verified published versions.
-- [ ] Generated pages/compatibility and root discovery/JSON-LD are consistent;
+- [~] Current public claims/install pins agree with verified published versions.
+- [x] Generated pages/compatibility and root discovery/JSON-LD are consistent;
   historical release data and design assets remain correct.
-- [ ] Integrity, negative drift, idempotence/safety, ACKit and diff gates pass.
+- [x] Integrity, negative drift, idempotence/safety, ACKit and diff gates pass.
 - [ ] Protected PR CI, main integration and public read-back are verified;
   evidence accurately records the resulting state.
 
@@ -88,6 +88,25 @@ Forward corrective PR; never rewrite history or overwrite unrelated work.
 Canonical product sources remain unchanged by this website task.
 
 ## Completion notes
+
+Implementation is prepared locally; no website push advertises bridge 0.1.2
+before TASK-0015 proves its actual publication. Hosted CI/main/public read-back
+remain to be performed before this task is completed.
+
+- Canonical generators produced 34 ACKit pages (0.5.5) and 14 bridge pages
+  (prepared 0.1.2); all 49 URLs, nav/internal links, robots/sitemap checks PASS.
+- Bridge compatibility now reads its maintained source table. SDK realpath,
+  MCP startup-boundary/ci and source-built Action descriptions match ACKit docs.
+  Root HTML/install/JSON-LD/fallback and curated discovery versions agree.
+- Both generators run a second time with byte-identical tracked contents;
+  root/theme assets are unchanged. No CSS/client interaction change.
+- The old verifier accepted a deliberately stale root llms-full current-version
+  field (exit 0); the new existing integrity gate rejects it (exit 1), with the
+  positive fixture still exit 0. Historical changelog versions remain allowed.
+- Node syntax, ACKit doctor/task doctor/scan CI (93 >= 80), diff checks PASS.
+  .ackit runtime state is ignored, not tracked; no initialization or hooks ran.
+
+### Initial planning checkpoint
 
 Plan before implementation. Both main checkouts were clean. Site baseline uses
 ACKit 0.5.4 and bridge 0.1.1. ACKit doctor/task doctor pass with zero skills;
